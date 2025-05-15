@@ -4,9 +4,8 @@
     ViewData["Title"] = "Home Page";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Invoices</h1>
-</div>
+<h2 class="text-center mb-3">Invoices</h1>
+<a class="btn btn-primary" asp-page="/Invoices/Create">New Invoice</a>
 
 <table class="table table-stripped">
     <thead>
@@ -20,7 +19,7 @@
             <th>Actions</th>
         </tr>
     </thead>
-    <tbody>
+    <tbody class="tabel-group-divider">
         @foreach (var invoice in Model)
         {
             <tr>
@@ -31,8 +30,11 @@
                 <td>@invoice.InvoiceDate.ToString("MM/dd/yyyy")</td>
                 <td>@invoice.DueDate.ToString("MM/dd/yyyy")</td>
                 <td>
-                    <a href="@Url.Action("Details", "Invoice", new { id = invoice.Id })" class="btn btn-info">
+                    <a class="btn btn-primary btn-sm" asp-page="/Invoices/Edit" asp-route-id="@invoice.Id">
                         Details
+                    </a>
+                    <a class="btn btn-danger btn-sm" asp-page="/Invoices/Delete" asp-route-id="@invoice.Id">
+                        Delete
                     </a>
                 </td>
             </tr>
