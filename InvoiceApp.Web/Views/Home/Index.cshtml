@@ -1,0 +1,42 @@
+﻿@using InvoiceApp.Application.Invoices.Get;
+@model List<InvoiceResponse>
+@{
+    ViewData["Title"] = "Home Page";
+}
+
+<div class="text-center">
+    <h1 class="display-4">Invoices</h1>
+</div>
+
+<table class="table table-stripped">
+    <thead>
+        <tr>
+            <th>Invoices ID</th>
+            <th>Client ID</th>
+            <th>Status</th>
+            <th>Total Amount</th>
+            <th>Issue Date</th>
+            <th>Due Date</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var invoice in Model)
+        {
+            <tr>
+                <td>@invoice.Id</td>
+                <td>@invoice.ClientId</td>
+                <td>@invoice.Status</td>
+                <td>@invoice.TotalAmount.ToString("C")</td>
+                <td>@invoice.InvoiceDate.ToString("MM/dd/yyyy")</td>
+                <td>@invoice.DueDate.ToString("MM/dd/yyyy")</td>
+                <td>
+                    <a href="@Url.Action("Details", "Invoice", new { id = invoice.Id })" class="btn btn-info">
+                        Details
+                    </a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
