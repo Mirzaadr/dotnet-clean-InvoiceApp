@@ -1,7 +1,7 @@
 using InvoiceApp.Application.DTOs;
 using InvoiceApp.Domain.Invoices;
 
-namespace InvoiceApp.Application.Mappers;
+namespace InvoiceApp.Application.Commons.Mappers;
 
 public static class InvoiceMapper
 {

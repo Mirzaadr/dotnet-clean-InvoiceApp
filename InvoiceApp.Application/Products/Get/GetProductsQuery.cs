@@ -3,4 +3,4 @@ using MediatR;
 
 namespace InvoiceApp.Application.Products.Get;
 
-public record GetProductQuery(Guid ProductId) : IRequest<ProductDto>;
+public record GetProductsQuery() : IRequest<List<ProductDto>>;
