@@ -11,6 +11,9 @@ public class InvoiceDTO
   public double TotalAmount { get; set; }
   public string Status { get; set; } = "Draft";
   public List<InvoiceItemDto> Items { get; set; } = new();
+  
+  public DateTime? CreatedDate { get; set; }
+  public DateTime? UpdatedDate { get; set; }
 }
 
 
@@ -21,4 +24,6 @@ public class InvoiceItemDto
     public int Quantity { get; set; }
     public double UnitPrice { get; set; }
     public double LineTotal { get; set; }
+    public DateTime? CreatedDate { get; set; }
+    public DateTime? UpdatedDate { get; set; }
 }

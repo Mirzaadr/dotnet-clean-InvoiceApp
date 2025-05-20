@@ -1,4 +1,5 @@
 using InvoiceApp.Application.DTOs;
+using InvoiceApp.Application.Mappers;
 using InvoiceApp.Domain.Products;
 using MediatR;
 
@@ -17,14 +18,6 @@ public class GetProductListQueryHandler : IRequestHandler<GetProductListQuery, L
     {
         var products = await _productRepository.GetAllAsync();
         return products.ConvertAll(product =>
-          new ProductDto
-          {
-              Id = product.Id.Value,
-              Name = product.Name,
-              Description = product.Description,
-              Price = product.UnitPrice,
-              CreatedDate = product.CreatedDate,
-              UpdatedDate = product.UpdatedDate,
-          });
+          ProductMapper.ToDto(product));
     }
 }

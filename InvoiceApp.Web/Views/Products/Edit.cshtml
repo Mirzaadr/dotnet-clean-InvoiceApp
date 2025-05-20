@@ -2,3 +2,44 @@
 @{
     ViewData["Title"] = "Edit Product";
 }
+
+<h2>@ViewData["Title"]</h2>
+<form asp-action="Edit" method="post">
+    <div class="row g-2 mb-3">
+            <div class="col-lg-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        Product Details
+                    </div>
+                    <div class="card-body">
+                        <div class="row mb-3">
+                            <label class="col-sm-4 col-form-label">Product Name</label>
+                            <div class="col-sm-8">
+                                <input asp-for="Name" class="form-control" >
+                                <span asp-validation-for="Name" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <label class="col-sm-4 col-form-label">Product Description</label>
+                            <div class="col-sm-8">
+                                <textarea class="form-control" asp-for="Description"></textarea>
+                                <span asp-validation-for="Description" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <label class="col-sm-4 col-form-label">Price</label>
+                            <div class="col-sm-8">
+                                <input class="form-control" asp-for="Price">
+                                <span asp-validation-for="Price" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+    </div>
+
+    <button type="submit" class="btn btn-primary me-2">Save</button>
+    <a href="/Products" class="btn btn-outline-primary" role="button">Back</a>
+</form>

@@ -24,9 +24,9 @@ public static class SeedData
 
     public static void Seed(InMemoryDbContext context)
     {
-        int clientCount = 10;
-        int productCount = 10;
-        int invoiceCount = 5;
+        int clientCount = 50;
+        int productCount = 300;
+        int invoiceCount = 100;
 
         var clientFaker = new Faker<Client>()
             .CustomInstantiator(f => new Client(
@@ -44,7 +44,9 @@ public static class SeedData
                 ProductId.New(),
                 f.Commerce.ProductName(),
                 f.Random.Double(10, 500),
-                f.Commerce.ProductDescription()
+                f.Commerce.ProductDescription(),
+                DateTime.Now,
+                DateTime.Now
             ));
 
         var clients = clientFaker.Generate(clientCount);
@@ -74,8 +76,8 @@ public static class SeedData
                     product.Name,
                     product.UnitPrice,
                     quantity,
-                    null,
-                    null
+                    DateTime.Now,
+                    DateTime.Now
                 ));
             }
 
