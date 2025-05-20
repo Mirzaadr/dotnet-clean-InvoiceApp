@@ -1,3 +1,4 @@
+using InvoiceApp.Domain.Commons.Models;
 using InvoiceApp.Domain.Products;
 
 namespace InvoiceApp.Infrastructure.Persistence.Repositories;
@@ -42,6 +43,22 @@ public class ProductRepository : IProductRepository
     }
 
     public Task<List<Product>> GetAllAsync() => Task.FromResult(_context.Products);
+
+    public async Task<PagedList<Product>> GetAllAsync(int page, int pageSize, string? searchTerm)
+    {
+        var productQuery = _context.Products.AsQueryable();
+
+        if (!string.IsNullOrEmpty(searchTerm))
+        {
+            searchTerm = searchTerm.ToLower();
+            productQuery = productQuery.Where(i =>
+                i.Name.ToLower().Contains(searchTerm) ||
+                (i.Description != null && i.Description.ToLower().Contains(searchTerm))
+            );
+        }
+
+        return await PagedList<Product>.CreateAsync(productQuery, page, pageSize);
+    }
 
     public Task<Product?> GetByIdAsync(ProductId id)
     {

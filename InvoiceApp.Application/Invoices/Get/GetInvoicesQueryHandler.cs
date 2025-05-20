@@ -2,10 +2,11 @@ using InvoiceApp.Application.DTOs;
 using InvoiceApp.Application.Commons.Mappers;
 using InvoiceApp.Domain.Invoices;
 using MediatR;
+using InvoiceApp.Domain.Commons.Models;
 
 namespace InvoiceApp.Application.Invoices.Get;
 
-internal sealed class GetInvoicesQueryHandler : IRequestHandler<GetInvoicesQuery, List<InvoiceDTO>>
+internal sealed class GetInvoicesQueryHandler : IRequestHandler<GetInvoicesQuery, PagedList<InvoiceDTO>>
 {
   private readonly IInvoiceRepository _invoiceRepository;
 
@@ -14,11 +15,14 @@ internal sealed class GetInvoicesQueryHandler : IRequestHandler<GetInvoicesQuery
       _invoiceRepository = invoiceRepository;
   }
 
-  public async Task<List<InvoiceDTO>> Handle(GetInvoicesQuery query, CancellationToken cancellationToken)
+  public async Task<PagedList<InvoiceDTO>> Handle(GetInvoicesQuery query, CancellationToken cancellationToken)
   {
-    var invoices = await _invoiceRepository.GetAllAsync();
-    return invoices.ConvertAll(invoice => 
-      InvoiceMapper.ToDto(invoice)
+    var invoices = await _invoiceRepository.GetAllAsync(query.page, query.pageSize, query.searchTerm);
+    return new PagedList<InvoiceDTO>(
+      items: invoices.Items.ConvertAll(i => InvoiceMapper.ToDto(i)),
+      page: invoices.Page,
+      pageSize: invoices.PageSize,
+      totalCount: invoices.TotalCount
     );
   }
 }

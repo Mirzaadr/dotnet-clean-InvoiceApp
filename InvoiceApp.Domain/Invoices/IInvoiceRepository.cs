@@ -1,8 +1,11 @@
+using InvoiceApp.Domain.Commons.Models;
+
 namespace InvoiceApp.Domain.Invoices;
 
 public interface IInvoiceRepository
 {
     Task<Invoice?> GetByIdAsync(InvoiceId id);
+    Task<PagedList<Invoice>> GetAllAsync(int page, int pageSize, string? searchTerm);
     Task<List<Invoice>> GetAllAsync();
     Task AddAsync(Invoice invoice);
     Task UpdateAsync(Invoice invoice);

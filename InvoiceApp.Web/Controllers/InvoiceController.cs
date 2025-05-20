@@ -2,11 +2,12 @@ using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using InvoiceApp.Web.Models;
 using MediatR;
-using InvoiceApp.Application.Invoices.GetAll;
+using InvoiceApp.Application.Invoices.GetById;
 using InvoiceApp.Application.Invoices.Get;
 using InvoiceApp.Application.DTOs;
 using InvoiceApp.Application.Invoices.Create;
 using InvoiceApp.Application.Invoices.Delete;
+using InvoiceApp.Web.Models.ViewModels;
 
 namespace InvoiceApp.Web.Controllers;
 
@@ -21,17 +22,32 @@ public class InvoiceController : Controller
     _mediator = mediator;
   }
 
-  public async Task<IActionResult> Index()
+  public async Task<IActionResult> Index(int page = 1, int pageSize = 10, string search = "")
   {
     // var command = _mapper.Map<CreateMenuCommand>((request, hostId));
-    var query = new GetInvoiceListQuery();
+    var query = new GetInvoicesQuery(page, pageSize, search);
     var result = await _mediator.Send(query);
+
+    // ViewBag.CurrentPage = page;
+    // ViewBag.PageSize = pageSize;
+    // ViewBag.TotalItems = totalItems;
+    // ViewBag.TotalPages = (int)Math.Ceiling((double)totalItems / pageSize);
+    ViewBag.SearchTerm = search;
+
+    // var viewModel = new PagedViewModel<InvoiceDTO>
+    // {
+    //     CurrentPage = result.Page,
+    //     SearchTerm = searchTerm,
+    //     TotalItems = result.TotalCount,
+    //     TotalPages = (int)Math.Ceiling((double)result.TotalCount / pageSize),
+    //     Items = result.Items
+    // };
     return View(result);
   }
 
   public async Task<IActionResult> Details(Guid id)
   {
-    var query = new GetInvoiceQuery(id);
+    var query = new GetInvoiceByIdQuery(id);
     var result = await _mediator.Send(query);
     return View(result);
   }
@@ -68,7 +84,7 @@ public class InvoiceController : Controller
 
     public async Task<IActionResult> Edit(Guid id)
     {
-        var invoice = await _mediator.Send(new GetInvoiceQuery(id));
+        var invoice = await _mediator.Send(new GetInvoiceByIdQuery(id));
         if (invoice == null)
             return NotFound();
 
@@ -106,11 +122,11 @@ public class InvoiceController : Controller
     // }
 
     public async Task<IActionResult> Delete(Guid id)
-  {
-    var invoice = await _mediator.Send(new GetInvoiceQuery(id));
-    if (invoice == null) return NotFound();
-    return View(invoice);
-  }
+    {
+      var invoice = await _mediator.Send(new GetInvoiceByIdQuery(id));
+      if (invoice == null) return NotFound();
+      return View(invoice);
+    }
 
     [HttpPost, ActionName("Delete")]
     public async Task<IActionResult> DeleteConfirmed(Guid id)

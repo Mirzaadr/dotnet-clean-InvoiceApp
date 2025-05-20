@@ -1,13 +1,42 @@
-@model List<InvoiceDTO>
+@using InvoiceApp.Domain.Commons.Models
+@using InvoiceApp.Web.Models.ViewModels
+@model PagedList<InvoiceDTO>
 @{
     ViewData["Title"] = "Invoice Page";
+    var currentPage = Model.Page;
+    var pageSize = Model.PageSize;
+
+    int totalItems = Model.TotalCount;
+
+    int totalPages = (int)Math.Ceiling((double)totalItems / pageSize);
+    string search = ViewBag.SearchTerm ?? "";
+    @* int startPage = Math.Max(2, currentPage - 2);
+    int endPage = Math.Min(totalPages - 1, currentPage + 2); *@
 }
 
 <div class="text-center">
     <h1 class="display-4">Invoices</h1>
 </div>
 
-<partial name="_InvoiceTable" model="@Model" />
-<div class=" text-center">
-    <a asp-action="Create" class="btn btn-primary">Create New Invoice</a>
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <!-- Left: Add Button -->
+    <div>
+        <a class="btn btn-primary mb-2" asp-action="Create">New Invoice</a>
+    </div>
+
+    <!-- Right: Search Form -->
+    @await Component.InvokeAsync("SearchForm", new SearchFormViewModel {
+        SearchTerm = search
+    })
 </div>
+
+<partial name="_InvoiceTable" model="@Model.Items" />
+
+
+@await Component.InvokeAsync("Pagination", new PaginationViewModel {
+    CurrentPage = currentPage,
+    PageSize = pageSize,
+    TotalItems = totalItems,
+    TotalPages = totalPages,
+    SearchTerm = search
+})

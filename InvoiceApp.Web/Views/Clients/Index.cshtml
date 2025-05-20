@@ -1,47 +1,30 @@
-@model List<ClientDto>
+@model PagedList<ClientDto>
 @{
     ViewData["Title"] = "List Clients";
+    var search = ViewBag.SearchTerm ?? "";
 }
-<table class="table table-stripped">
-    <thead>
-        <tr>
-            <th>No.</th>
-            <th>Name</th>
-            <th>Email</th>
-            <th>Address</th>
-            <th>Created</th>
-            <th>Last Update</th>
-            <th>Actions</th>
-        </tr>
-    </thead>
-    <tbody>
-        @if (!Model.Any())
-        {
-            <tr>
-                <td colspan="7" class="text-center">No clients found.</td>
-            </tr>
-        }
-        @for (var i=0; i < Model.Count; i++)
-        {
-            <tr>
-                <td>@(i+1)</td>
-                <td>@Model[i].Name</td>
-                <td style="max-width: 200px;" class="text-truncate">@Model[i].Email</td>
-                <td style="max-width: 200px;" class="text-truncate">@Model[i].Address</td>
-                <td>@Model[i].CreatedDate?.ToString("MM/dd/yyyy")</td>
-                <td>@Model[i].UpdatedDate?.ToString("MM/dd/yyyy")</td>
-                <td>
-                    <a href="@Url.Action("Details", "Clients", new { id = Model[i].Id })" class="btn btn-info btn-sm">
-                        <i class="bi bi-eye"></i>
-                    </a>
-                    <a href="@Url.Action("Edit", "Clients", new { id = Model[i].Id })" class="btn btn-warning btn-sm">
-                        <i class="bi bi-pencil-square"></i>
-                    </a>
-                    <a href="@Url.Action("Delete", "Clients", new { id = Model[i].Id })" class="btn btn-danger btn-sm">
-                        <i class="bi bi-trash"></i>
-                    </a>
-                </td>
-            </tr>
-        }
-    </tbody>
-</table>
+
+<div class="text-center">
+    <h1 class="display-4">Clients</h1>
+</div>
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <!-- Left: Add Button -->
+    <div>
+        <a class="btn btn-primary mb-2" asp-action="Create">Add Client</a>
+    </div>
+
+    <!-- Right: Search Form -->
+    @await Component.InvokeAsync("SearchForm", new SearchFormViewModel {
+        SearchTerm = search
+    })
+</div>
+<partial name="_ClientTable" model="@Model.Items" />
+
+@await Component.InvokeAsync("Pagination", new PaginationViewModel {
+    CurrentPage = Model.Page,
+    PageSize = Model.PageSize,
+    TotalItems = Model.TotalCount,
+    TotalPages = Model.TotalPages,
+    SearchTerm = search
+})

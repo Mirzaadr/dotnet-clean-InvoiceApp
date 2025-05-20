@@ -1,30 +1,21 @@
 using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using InvoiceApp.Web.Models;
-using MediatR;
-using InvoiceApp.Application.Invoices.GetAll;
-using InvoiceApp.Application.Invoices.Get;
-using InvoiceApp.Application.DTOs;
 
 namespace InvoiceApp.Web.Controllers;
 
 public class HomeController : Controller
 {
     private readonly ILogger<HomeController> _logger;
-    private readonly ISender _mediator;
 
-    public HomeController(ILogger<HomeController> logger, ISender mediator)
+    public HomeController(ILogger<HomeController> logger)
     {
         _logger = logger;
-        _mediator = mediator;
     }
 
-    public async Task<IActionResult> Index()
+    public IActionResult Index()
     {
-        // var command = _mapper.Map<CreateMenuCommand>((request, hostId));
-        var query = new GetInvoiceListQuery();
-        var result = await _mediator.Send(query);
-        return View(result);
+        return View();
     }
 
     public IActionResult Privacy()

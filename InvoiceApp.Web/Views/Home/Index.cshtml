@@ -1,42 +1,8 @@
-﻿@using InvoiceApp.Application.DTOs;
-@model List<InvoiceDTO>
-@{
+﻿@{
     ViewData["Title"] = "Home Page";
 }
 
 <div class="text-center">
-    <h1 class="display-4">Invoices</h1>
+    <h1 class="display-4">Welcome</h1>
+    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
 </div>
-
-<table class="table table-stripped">
-    <thead>
-        <tr>
-            <th>Invoices ID</th>
-            <th>Client ID</th>
-            <th>Status</th>
-            <th>Total Amount</th>
-            <th>Issue Date</th>
-            <th>Due Date</th>
-            <th>Actions</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var invoice in Model)
-        {
-            <tr>
-                <td>@invoice.InvoiceNumber</td>
-                <td>@invoice.ClientName</td>
-                <td>@invoice.Status</td>
-                <td>@invoice.TotalAmount.ToString("C")</td>
-                <td>@invoice.IssueDate.ToString("MM/dd/yyyy")</td>
-                <td>@invoice.DueDate.ToString("MM/dd/yyyy")</td>
-                <td>
-                    <a href="@Url.Action("Details", "Invoice", new { id = invoice.Id })" class="btn btn-info">
-                        Details
-                    </a>
-                </td>
-            </tr>
-        }
-    </tbody>
-</table>
-

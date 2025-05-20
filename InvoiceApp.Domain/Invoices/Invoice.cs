@@ -1,5 +1,5 @@
 using InvoiceApp.Domain.Clients;
-using InvoiceApp.Domain.Common.Models;
+using InvoiceApp.Domain.Commons.Models;
 using InvoiceApp.Domain.Products;
 
 namespace InvoiceApp.Domain.Invoices;

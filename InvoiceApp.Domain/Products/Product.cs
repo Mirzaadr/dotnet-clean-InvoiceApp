@@ -1,4 +1,4 @@
-using InvoiceApp.Domain.Common.Models;
+using InvoiceApp.Domain.Commons.Models;
 
 namespace InvoiceApp.Domain.Products;
 

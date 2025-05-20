@@ -1,4 +1,5 @@
 using InvoiceApp.Domain.Clients;
+using InvoiceApp.Domain.Commons.Models;
 
 namespace InvoiceApp.Infrastructure.Persistence.Repositories;
 
@@ -42,6 +43,23 @@ public class ClientRepository : IClientRepository
     }
 
     public Task<List<Client>> GetAllAsync() => Task.FromResult(_context.Clients);
+    
+    public async Task<PagedList<Client>> GetAllAsync(int page, int pageSize, string? searchTerm)
+    {
+        var clientQuery = _context.Clients.AsQueryable();
+
+        if (!string.IsNullOrEmpty(searchTerm))
+        {
+            searchTerm = searchTerm.ToLower();
+            clientQuery = clientQuery.Where(i =>
+                i.Name.ToLower().Contains(searchTerm) ||
+                (i.Address != null && i.Address.ToLower().Contains(searchTerm)) ||
+                (i.Email != null && i.Email.ToLower().Contains(searchTerm))
+            );
+        }
+
+        return await PagedList<Client>.CreateAsync(clientQuery, page, pageSize);
+    }
     
     public async Task<Client?> GetByIdAsync(ClientId id)
     {

@@ -1,4 +1,4 @@
-namespace InvoiceApp.Domain.Common.Models;
+namespace InvoiceApp.Domain.Commons.Models;
 
 public abstract class ValueObject : IEquatable<ValueObject>
 {

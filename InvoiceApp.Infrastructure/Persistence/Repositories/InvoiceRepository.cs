@@ -1,4 +1,7 @@
+using InvoiceApp.Domain.Commons.Models;
 using InvoiceApp.Domain.Invoices;
+using Microsoft.EntityFrameworkCore;
+using System.Linq;
 
 namespace InvoiceApp.Infrastructure.Persistence.Repositories;
 
@@ -46,10 +49,27 @@ public class InvoiceRepository : IInvoiceRepository
         });
     }
 
-    public async Task<List<Invoice>> GetAllAsync()
+    public async Task<PagedList<Invoice>> GetAllAsync(int page, int pageSize, string? searchTerm)
     {
-        return await Task.FromResult(_context.Invoices);
+        var invoiceQuery = _context.Invoices.AsQueryable();
+
+        if (!string.IsNullOrEmpty(searchTerm))
+        {
+            searchTerm = searchTerm.ToLower();
+            invoiceQuery = invoiceQuery.Where(i =>
+                i.InvoiceNumber.ToLower().Contains(searchTerm) ||
+                i.Status.Value.ToLower().Contains(searchTerm) ||
+                i.ClientName.ToLower().Contains(searchTerm)
+            );
+        }
+
+        return await PagedList<Invoice>.CreateAsync(invoiceQuery, page, pageSize);
     }
+
+  public Task<List<Invoice>> GetAllAsync()
+  {
+    throw new NotImplementedException();
+  }
 
   public async Task<Invoice?> GetByIdAsync(InvoiceId id)
     {

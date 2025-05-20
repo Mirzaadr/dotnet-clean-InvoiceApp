@@ -1,4 +1,4 @@
-namespace InvoiceApp.Domain.Common.Models;
+namespace InvoiceApp.Domain.Commons.Models;
 
 public class BaseEntity<TId> : IEquatable<BaseEntity<TId>>
     where TId : notnull
