@@ -21,7 +21,7 @@ if (!app.Environment.IsDevelopment())
 }
 
 var context = app.Services.GetRequiredService<InMemoryDbContext>();
-SeedData.Initialize(context);
+SeedData.Seed(context);
 
 app.UseHttpsRedirection();
 app.UseRouting();

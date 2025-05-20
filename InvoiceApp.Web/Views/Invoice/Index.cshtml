@@ -1,0 +1,13 @@
+@model List<InvoiceDTO>
+@{
+    ViewData["Title"] = "Invoice Page";
+}
+
+<div class="text-center">
+    <h1 class="display-4">Invoices</h1>
+</div>
+
+<partial name="_InvoiceTable" model="@Model" />
+<div class=" text-center">
+    <a asp-action="Create" class="btn btn-primary">Create New Invoice</a>
+</div>

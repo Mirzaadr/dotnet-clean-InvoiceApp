@@ -11,7 +11,7 @@ public class ClientRepository : IClientRepository
         _context = context;
     }
 
-    public void Create(Client client)
+    public Task AddAsync(Client client)
     {
         var existingClient = _context.Clients.FirstOrDefault(i => i.Id == client.Id);
         if (existingClient is null)
@@ -23,9 +23,10 @@ public class ClientRepository : IClientRepository
             existingClient = client;
         }
         _context.SaveChanges();
+        return Task.CompletedTask;
     }
 
-    public void Delete(Client client)
+    public Task DeleteAsync(Client client)
     {
         var existingInvoice = _context.Clients.FirstOrDefault(i => i.Id == client.Id);
         if (existingInvoice is null)
@@ -37,15 +38,18 @@ public class ClientRepository : IClientRepository
             _context.Clients.Remove(client);
         }
         _context.SaveChanges();
+        return Task.CompletedTask;
     }
 
-    public async Task<Client?> GetById(ClientId id)
+    public Task<List<Client>> GetAllAsync() => Task.FromResult(_context.Clients);
+    
+    public async Task<Client?> GetByIdAsync(ClientId id)
     {
-        var client =  _context.Clients.FirstOrDefault(i => i.Id == id);
+        var client = _context.Clients.FirstOrDefault(i => i.Id == id);
         return await Task.FromResult(client);
     }
 
-    public void Update(Client client)
+    public Task UpdateAsync(Client client)
     {
         throw new NotImplementedException();
     }

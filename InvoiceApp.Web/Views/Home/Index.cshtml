@@ -1,5 +1,5 @@
-﻿@using InvoiceApp.Application.Invoices.Get;
-@model List<InvoiceResponse>
+﻿@using InvoiceApp.Application.DTOs;
+@model List<InvoiceDTO>
 @{
     ViewData["Title"] = "Home Page";
 }
@@ -24,11 +24,11 @@
         @foreach (var invoice in Model)
         {
             <tr>
-                <td>@invoice.Id</td>
-                <td>@invoice.ClientId</td>
+                <td>@invoice.InvoiceNumber</td>
+                <td>@invoice.ClientName</td>
                 <td>@invoice.Status</td>
                 <td>@invoice.TotalAmount.ToString("C")</td>
-                <td>@invoice.InvoiceDate.ToString("MM/dd/yyyy")</td>
+                <td>@invoice.IssueDate.ToString("MM/dd/yyyy")</td>
                 <td>@invoice.DueDate.ToString("MM/dd/yyyy")</td>
                 <td>
                     <a href="@Url.Action("Details", "Invoice", new { id = invoice.Id })" class="btn btn-info">

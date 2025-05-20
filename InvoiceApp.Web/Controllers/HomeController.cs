@@ -4,6 +4,7 @@ using InvoiceApp.Web.Models;
 using MediatR;
 using InvoiceApp.Application.Invoices.GetAll;
 using InvoiceApp.Application.Invoices.Get;
+using InvoiceApp.Application.DTOs;
 
 namespace InvoiceApp.Web.Controllers;
 
@@ -17,8 +18,6 @@ public class HomeController : Controller
         _logger = logger;
         _mediator = mediator;
     }
-
-    public List<InvoiceResponse> invoiceList = new();
 
     public async Task<IActionResult> Index()
     {

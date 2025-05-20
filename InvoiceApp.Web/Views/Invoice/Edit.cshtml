@@ -1,0 +1,12 @@
+@model InvoiceFormDTO
+
+@{
+    ViewData["Title"] = "Edit Invoice";
+}
+
+<h2>Edit Invoice</h2>
+<partial name="_InvoiceForm" model="Model" />
+
+@section Scripts {
+    <script src="~/js/invoice-form.js"></script>
+}

@@ -1,7 +1,6 @@
-using InvoiceApp.Application.Invoices.Get;
-using InvoiceApp.Domain.Invoices;
+using InvoiceApp.Application.DTOs;
 using MediatR;
 
 namespace InvoiceApp.Application.Invoices.GetAll;
 
-public record GetInvoiceListQuery() : IRequest<List<InvoiceResponse>>;
+public record GetInvoiceListQuery() : IRequest<List<InvoiceDTO>>;

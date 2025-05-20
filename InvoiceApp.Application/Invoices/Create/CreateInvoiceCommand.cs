@@ -3,17 +3,17 @@ using MediatR;
 namespace InvoiceApp.Application.Invoices.Create;
 
 public record CreateInvoiceCommand(
-  Guid clientId,
-  DateTime invoiceDate,
-  DateTime dueDate,
-  string status,
-  double total,
-  List<InvoiceItemCommand> listItems
+  Guid ClientId,
+  DateTime IssueDate,
+  DateTime DueDate,
+  // string Status,
+  // double Total,
+  List<InvoiceItemCommand> Items
 ) : IRequest;
 
 public record InvoiceItemCommand(
-  string name,
-  string description,
-  int qty,
-  double unitPrice
+  Guid ProductId,
+  string ProductName,
+  int Quantity,
+  double UnitPrice
 );

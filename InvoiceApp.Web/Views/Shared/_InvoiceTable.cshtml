@@ -1,0 +1,45 @@
+@model List<InvoiceDTO>
+
+<table class="table table-stripped">
+    <thead>
+        <tr>
+            <th>Invoice No.</th>
+            <th>Client ID</th>
+            <th>Status</th>
+            <th>Total Amount</th>
+            <th>Issue Date</th>
+            <th>Due Date</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (!Model.Any())
+        {
+            <tr>
+                <td colspan="7" class="text-center">No invoices found.</td>
+            </tr>
+        }
+        @foreach (var invoice in Model)
+        {
+            <tr>
+                <td>@invoice.InvoiceNumber</td>
+                <td>@invoice.ClientName</td>
+                <td>@invoice.Status</td>
+                <td>@invoice.TotalAmount.ToString("C")</td>
+                <td>@invoice.IssueDate.ToString("MM/dd/yyyy")</td>
+                <td>@invoice.DueDate.ToString("MM/dd/yyyy")</td>
+                <td>
+                    <a href="@Url.Action("Details", "Invoice", new { id = invoice.Id })" class="btn btn-info btn-sm">
+                        <i class="bi bi-eye"></i>
+                    </a>
+                    <a href="@Url.Action("Edit", "Invoice", new { id = invoice.Id })" class="btn btn-warning btn-sm">
+                        <i class="bi bi-pencil-square"></i>
+                    </a>
+                    <a href="@Url.Action("Delete", "Invoice", new { id = invoice.Id })" class="btn btn-danger btn-sm">
+                        <i class="bi bi-trash"></i>
+                    </a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

@@ -1,9 +1,11 @@
+using InvoiceApp.Application.DTOs;
+using InvoiceApp.Application.Mappers;
 using InvoiceApp.Domain.Invoices;
 using MediatR;
 
 namespace InvoiceApp.Application.Invoices.Get;
 
-internal sealed class GetInvoiceQueryHandler : IRequestHandler<GetInvoiceQuery, InvoiceResponse>
+internal sealed class GetInvoiceQueryHandler : IRequestHandler<GetInvoiceQuery, InvoiceDTO>
 {
   private readonly IInvoiceRepository _invoiceRepository;
 
@@ -12,21 +14,14 @@ internal sealed class GetInvoiceQueryHandler : IRequestHandler<GetInvoiceQuery, 
     _invoiceRepository = invoiceRepository;
   }
 
-  public async Task<InvoiceResponse> Handle(GetInvoiceQuery request, CancellationToken cancellationToken)
+  public async Task<InvoiceDTO> Handle(GetInvoiceQuery query, CancellationToken cancellationToken)
   {
-    var invoice = await _invoiceRepository.GetById(request.InvoiceId);
+    var invoice = await _invoiceRepository.GetByIdAsync(new InvoiceId(query.InvoiceId));
     // throw new NotImplementedException();
     if (invoice is null)
     {
         throw new Exception("Invoice not found");
     }
-    return new InvoiceResponse(
-      invoice.Id.Value,
-      invoice.ClientId.Value,
-      invoice.InvoiceDate,
-      invoice.DueDate,
-      invoice.InvoiceStatus.Status,
-      invoice.TotalAmount
-    );
+    return InvoiceMapper.ToDto(invoice);
   }
 }

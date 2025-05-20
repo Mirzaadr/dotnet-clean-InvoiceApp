@@ -1,10 +1,12 @@
+using InvoiceApp.Application.DTOs;
 using InvoiceApp.Application.Invoices.Get;
+using InvoiceApp.Application.Mappers;
 using InvoiceApp.Domain.Invoices;
 using MediatR;
 
 namespace InvoiceApp.Application.Invoices.GetAll;
 
-internal sealed class GetInvoiceListQueryHandler : IRequestHandler<GetInvoiceListQuery, List<InvoiceResponse>>
+internal sealed class GetInvoiceListQueryHandler : IRequestHandler<GetInvoiceListQuery, List<InvoiceDTO>>
 {
   private readonly IInvoiceRepository _invoiceRepository;
 
@@ -13,18 +15,11 @@ internal sealed class GetInvoiceListQueryHandler : IRequestHandler<GetInvoiceLis
       _invoiceRepository = invoiceRepository;
   }
 
-  public async Task<List<InvoiceResponse>> Handle(GetInvoiceListQuery request, CancellationToken cancellationToken)
+  public async Task<List<InvoiceDTO>> Handle(GetInvoiceListQuery query, CancellationToken cancellationToken)
   {
-    var invoices = await _invoiceRepository.GetAll();
+    var invoices = await _invoiceRepository.GetAllAsync();
     return invoices.ConvertAll(invoice => 
-      new InvoiceResponse(
-        invoice.Id.Value,
-        invoice.ClientId.Value,
-        invoice.InvoiceDate,
-        invoice.DueDate,
-        invoice.InvoiceStatus.Status,
-        invoice.TotalAmount
-      )
+      InvoiceMapper.ToDto(invoice)
     );
   }
 }

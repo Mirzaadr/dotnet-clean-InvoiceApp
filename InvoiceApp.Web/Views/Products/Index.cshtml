@@ -1,0 +1,45 @@
+@model List<ProductDto>
+@{
+    ViewData["Title"] = "List Products";
+}
+<table class="table table-stripped">
+    <thead>
+        <tr>
+            <th>No.</th>
+            <th>Name</th>
+            <th>Price</th>
+            <th>Created</th>
+            <th>Last Update</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (!Model.Any())
+        {
+            <tr>
+                <td colspan="7" class="text-center">No invoices found.</td>
+            </tr>
+        }
+        @for (var i=0; i < Model.Count; i++)
+        {
+            <tr>
+                <td>@(i+1)</td>
+                <td>@Model[i].Name</td>
+                <td>@Model[i].Price</td>
+                <td>@Model[i].CreatedDate</td>
+                <td>@Model[i].UpdatedDate</td>
+                <td>
+                    <a href="@Url.Action("Details", "Products", new { id = Model[i].Id })" class="btn btn-info btn-sm">
+                        <i class="bi bi-eye"></i>
+                    </a>
+                    <a href="@Url.Action("Edit", "Products", new { id = Model[i].Id })" class="btn btn-warning btn-sm">
+                        <i class="bi bi-pencil-square"></i>
+                    </a>
+                    <a href="@Url.Action("Delete", "Products", new { id = Model[i].Id })" class="btn btn-danger btn-sm">
+                        <i class="bi bi-trash"></i>
+                    </a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
