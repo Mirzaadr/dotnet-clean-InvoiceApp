@@ -6,6 +6,7 @@ using InvoiceApp.Application.Clients.Get;
 using InvoiceApp.Application.Clients.GetById;
 using InvoiceApp.Application.DTOs;
 using InvoiceApp.Application.Clients.Create;
+using InvoiceApp.Application.Clients.Delete;
 
 namespace InvoiceApp.Web.Controllers;
 
@@ -65,5 +66,12 @@ public class ClientsController : Controller
         // var query = new Create
         await Task.CompletedTask;
         return RedirectToAction("Index");
+    }
+
+    [HttpPost, ActionName("Delete")]
+    public async Task<IActionResult> DeleteConfirmed(Guid id)
+    {
+        await _mediator.Send(new DeleteClientCommand(id));
+        return RedirectToAction(nameof(Index));
     }
 }

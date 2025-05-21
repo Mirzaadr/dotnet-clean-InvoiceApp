@@ -4,6 +4,7 @@ using InvoiceApp.Application.Products.Get;
 using InvoiceApp.Application.Products.GetById;
 using InvoiceApp.Application.DTOs;
 using InvoiceApp.Application.Products.Create;
+using InvoiceApp.Application.Products.Delete;
 
 namespace InvoiceApp.Web.Controllers;
 
@@ -62,5 +63,12 @@ public class ProductsController : Controller
     {
         // var query = new Create
         return RedirectToAction("Index");
+    }
+
+    [HttpPost, ActionName("Delete")]
+    public async Task<IActionResult> DeleteConfirmed(Guid id)
+    {
+        await _mediator.Send(new DeleteProductCommand(id));
+        return RedirectToAction(nameof(Index));
     }
 }
