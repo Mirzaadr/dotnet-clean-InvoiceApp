@@ -6,6 +6,6 @@ namespace InvoiceApp.Application.Products.Get;
 
 public record GetProductsQuery(
   int page,
-  int pageSize,
+  int? pageSize,
   string? searchTerm
 ) : IRequest<PagedList<ProductDto>>;

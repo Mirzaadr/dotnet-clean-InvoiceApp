@@ -17,16 +17,29 @@ internal sealed class GetClientsQueryHandler : IRequestHandler<GetClientsQuery, 
 
     public async Task<PagedList<ClientDto>> Handle(GetClientsQuery request, CancellationToken cancellationToken)
     {
-        var clients = await _clientRepository.GetAllAsync(
-            request.page,
-            request.pageSize,
-            request.searchTerm
-        );
-        return new PagedList<ClientDto>(
-            items: clients.Items.ConvertAll(client => ClientMapper.ToDto(client)),
-            page: clients.Page,
-            pageSize: clients.PageSize,
-            totalCount: clients.TotalCount
-        );
+        if (request.pageSize is null)
+        {
+            var clients = await _clientRepository.GetAllAsync();
+            return new PagedList<ClientDto>(
+                items: clients.ConvertAll(client => ClientMapper.ToDto(client)),
+                page: request.page,
+                pageSize: clients.Count(),
+                totalCount: clients.Count()
+            );
+        }
+        else
+        {
+            var clients = await _clientRepository.GetAllAsync(
+                request.page,
+                request.pageSize.GetValueOrDefault(10),
+                request.searchTerm
+            );
+            return new PagedList<ClientDto>(
+                items: clients.Items.ConvertAll(client => ClientMapper.ToDto(client)),
+                page: clients.Page,
+                pageSize: clients.PageSize,
+                totalCount: clients.TotalCount
+            );
+        }
     }
 }

@@ -6,6 +6,6 @@ namespace InvoiceApp.Application.Clients.Get;
 
 public record GetClientsQuery(
   int page,
-  int pageSize,
+  int? pageSize,
   string? searchTerm
 ) : IRequest<PagedList<ClientDto>>;
