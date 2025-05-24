@@ -39,7 +39,7 @@ public class ClientsController : Controller
 
     public IActionResult Create()
     {
-        return View();
+        return View(new ClientDto());
     }
 
     [HttpPost]
