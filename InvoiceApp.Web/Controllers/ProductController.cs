@@ -41,6 +41,7 @@ public class ProductsController : Controller
     }
 
     [HttpPost]
+    [ValidateAntiForgeryToken]
     public async Task<IActionResult> Create(ProductDto product)
     {
         var query = new CreateProductCommand(product);
@@ -59,6 +60,7 @@ public class ProductsController : Controller
     }
 
     [HttpPost]
+    [ValidateAntiForgeryToken]
     public async Task<IActionResult> Edit(ProductDto product)
     {
         // var query = new Create
@@ -66,6 +68,7 @@ public class ProductsController : Controller
     }
 
     [HttpPost, ActionName("Delete")]
+    [ValidateAntiForgeryToken]
     public async Task<IActionResult> DeleteConfirmed(Guid id)
     {
         await _mediator.Send(new DeleteProductCommand(id));

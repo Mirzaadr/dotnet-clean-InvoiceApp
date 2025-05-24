@@ -43,6 +43,7 @@ public class ClientsController : Controller
     }
 
     [HttpPost]
+    [ValidateAntiForgeryToken]
     public async Task<IActionResult> Create(ClientDto client)
     {
         var query = new CreateClientCommand(client);
@@ -61,6 +62,7 @@ public class ClientsController : Controller
     }
 
     [HttpPost]
+    [ValidateAntiForgeryToken]
     public async Task<IActionResult> Edit(ClientDto client)
     {
         // var query = new Create
@@ -69,6 +71,7 @@ public class ClientsController : Controller
     }
 
     [HttpPost, ActionName("Delete")]
+    [ValidateAntiForgeryToken]
     public async Task<IActionResult> DeleteConfirmed(Guid id)
     {
         await _mediator.Send(new DeleteClientCommand(id));
