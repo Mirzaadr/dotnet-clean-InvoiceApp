@@ -6,6 +6,9 @@ public class InvoiceDTO
   public string InvoiceNumber { get; set; } = "";
   public Guid ClientId { get; set; }
   public string ClientName { get; set; } = "";
+  public string? ClientEmail { get; set; }
+  public string? ClientAddress { get; set; }
+  public string? ClientPhone { get; set; }
   public DateTime IssueDate { get; set; }
   public DateTime DueDate { get; set; }
   public double TotalAmount { get; set; }
