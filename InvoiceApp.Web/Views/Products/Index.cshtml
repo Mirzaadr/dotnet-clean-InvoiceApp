@@ -23,7 +23,7 @@
     })
 </div>
 
-<partial name="_ProductTable" model="@Model.Items" />
+<partial name="./Shared/_ProductTable" model="@Model.Items" />
 
 @await Component.InvokeAsync("Pagination", new PaginationViewModel {
     CurrentPage = Model.Page,

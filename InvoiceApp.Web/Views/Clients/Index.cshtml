@@ -22,7 +22,7 @@
         SearchTerm = search
     })
 </div>
-<partial name="_ClientTable" model="@Model.Items" />
+<partial name="./Shared/_ClientTable" model="@Model.Items" />
 
 @await Component.InvokeAsync("Pagination", new PaginationViewModel {
     CurrentPage = Model.Page,
