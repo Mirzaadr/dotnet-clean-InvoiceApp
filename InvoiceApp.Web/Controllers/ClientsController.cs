@@ -77,4 +77,28 @@ public class ClientsController : Controller
         await _mediator.Send(new DeleteClientCommand(id));
         return RedirectToAction(nameof(Index));
     }
+
+    [HttpGet]
+    public async Task<IActionResult> Search(string term)
+    {
+        var query = new GetClientsQuery(1, 10, term);
+        var clients = await _mediator.Send(query);
+        return Json(clients.Items.Select(c => new { id = c.Id, text = c.Name }));
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> GetById(Guid id)
+    {
+        var query = new GetClientByIdQuery(id);
+        var client = await _mediator.Send(query);
+
+        return Json(new
+        {
+            name = client.Name,
+            email = client.Email,
+            phone = client.PhoneNumber,
+            address = client.Address
+        });
+    }
+
 }

@@ -74,4 +74,25 @@ public class ProductsController : Controller
         await _mediator.Send(new DeleteProductCommand(id));
         return RedirectToAction(nameof(Index));
     }
+
+    [HttpGet]
+    public async Task<IActionResult> Search(string term)
+    {
+        var query = new GetProductsQuery(1, 10, term);
+        var products = await _mediator.Send(query);
+        return Json(products.Items.Select(c => new { id = c.Id, text = c.Name }));
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> GetById(Guid id)
+    {
+        var query = new GetProductByIdQuery(id);
+        var product = await _mediator.Send(query);
+
+        return Json(new {
+            name = product.Name,
+            unitPrice = product.Price
+        });
+    }
+
 }

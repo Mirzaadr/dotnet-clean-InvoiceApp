@@ -33,7 +33,7 @@
     })
 </div>
 
-<partial name="_InvoiceTable" model="@Model.Items" />
+<partial name="./Shared/_InvoiceTable" model="@Model.Items" />
 
 
 @await Component.InvokeAsync("Pagination", new PaginationViewModel {

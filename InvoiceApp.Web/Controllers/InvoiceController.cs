@@ -8,6 +8,8 @@ using InvoiceApp.Application.DTOs;
 using InvoiceApp.Application.Invoices.Create;
 using InvoiceApp.Application.Invoices.Delete;
 using InvoiceApp.Web.Models.ViewModels;
+using InvoiceApp.Application.Clients.Get;
+using InvoiceApp.Application.Products.Get;
 
 namespace InvoiceApp.Web.Controllers;
 
@@ -51,87 +53,97 @@ public class InvoiceController : Controller
     var result = await _mediator.Send(query);
     return View(result);
   }
-    
-    public IActionResult Create()
+
+  public async Task<IActionResult> Create()
+  {
+    var clients = await _mediator.Send(new GetClientsQuery(1, null, null));
+    var products = await _mediator.Send(new GetProductsQuery(1, null, null));
+
+    var newInvoice = new InvoiceDTO
     {
-        return View(new InvoiceFormDTO
-        {
-          Id = Guid.Empty,
-          ClientId = Guid.Empty,
-          InvoiceNumber = "",
-          IssueDate = DateTime.Now,
-          DueDate = DateTime.Now.AddDays(30),
-          TotalAmount = 0,
-          Status = "Draft",
-          Items = new List<InvoiceItemDto>(),
-          // ProductId = Guid.Empty,
-          // ProductName = "",
-          // Quantity = 0,
-          // UnitPrice = 0,
-          // LineTotal = 0
-        });
-    }
+      Id = Guid.Empty,
+      InvoiceNumber = "INV-100001",
+      ClientId = Guid.Empty,
+      IssueDate = DateTime.Now,
+      DueDate = DateTime.Now.AddDays(30),
+      TotalAmount = 0,
+      Status = "Draft",
+      Items = new List<InvoiceItemDto>()
+    };
 
-    [HttpPost]
-    public async Task<IActionResult> Create(CreateInvoiceCommand command)
+    var formData = new InvoiceFormViewModel
     {
-        if (!ModelState.IsValid) return View(command);
+        Invoice = newInvoice,
+        Clients = clients.Items,
+        Products = products.Items
+    };
+    return View(formData);
+  }
 
-        await _mediator.Send(command);
-        // return RedirectToAction(nameof(Details), new { id = newId });
-        return RedirectToAction(nameof(Index));
-    }
+  [HttpPost]
+  [ValidateAntiForgeryToken]
+  public async Task<IActionResult> Create(CreateInvoiceCommand command)
+  {
+    if (!ModelState.IsValid) return View(command);
+    await _mediator.Send(command);
+    // return RedirectToAction(nameof(Details), new { id = newId });
+    return RedirectToAction(nameof(Index));
+  }
 
-    public async Task<IActionResult> Edit(Guid id)
+  public async Task<IActionResult> Edit(Guid id)
+  {
+    var invoice = await _mediator.Send(new GetInvoiceByIdQuery(id));
+    if (invoice == null)
+      return NotFound();
+
+    var clients = await _mediator.Send(new GetClientsQuery(1, null, null));
+    var products = await _mediator.Send(new GetProductsQuery(1, null, null));
+
+    var formData = new InvoiceFormViewModel
     {
-        var invoice = await _mediator.Send(new GetInvoiceByIdQuery(id));
-        if (invoice == null)
-            return NotFound();
+        Invoice = invoice,
+        Clients = clients.Items,
+        Products = products.Items
+    };
 
-        var formDto = new InvoiceFormDTO
-        {
-            Id = invoice.Id,
-            ClientId = invoice.ClientId,
-            IssueDate = invoice.IssueDate,
-            Items = invoice.Items
-        };
+    return View("Edit", formData);
+  }
 
-        return View("Edit", formDto);
-    }
-    
-    // [HttpPost]
-    // [ValidateAntiForgeryToken]
-    // public async Task<IActionResult> Edit(Guid id, InvoiceFormDTO model)
-    // {
-    //     if (id != model.Id)
-    //         return BadRequest();
+  [HttpPost]
+  [ValidateAntiForgeryToken]
+  public async Task<IActionResult> Edit(Guid id, InvoiceFormDTO model)
+  {
+      if (id != model.Id)
+          return BadRequest();
 
-    //     if (!ModelState.IsValid)
-    //         return View("Edit", model);
+      if (!ModelState.IsValid)
+          return View("Edit", model);
 
-    //     var command = new UpdateInvoiceCommand
-    //     {
-    //         Id = model.Id,
-    //         ClientId = model.ClientId,
-    //         IssueDate = model.IssueDate,
-    //         Items = model.Items
-    //     };
+      // var command = new UpdateInvoiceCommand
+      // {
+      //     Id = model.Id,
+      //     ClientId = model.ClientId,
+      //     IssueDate = model.IssueDate,
+      //     Items = model.Items
+      // };
 
-    //     await _mediator.Send(command);
-    //     return RedirectToAction(nameof(Index));
-    // }
+      // await _mediator.Send(command);
+      return RedirectToAction(nameof(Index));
+  }
 
-    public async Task<IActionResult> Delete(Guid id)
-    {
-      var invoice = await _mediator.Send(new GetInvoiceByIdQuery(id));
-      if (invoice == null) return NotFound();
-      return View(invoice);
-    }
+  public async Task<IActionResult> Delete(Guid id)
+  {
+    var invoice = await _mediator.Send(new GetInvoiceByIdQuery(id));
+    if (invoice == null) return NotFound();
+    return View(invoice);
+  }
 
-    [HttpPost, ActionName("Delete")]
-    public async Task<IActionResult> DeleteConfirmed(Guid id)
-    {
-        await _mediator.Send(new DeleteInvoiceCommand(id));
-        return RedirectToAction(nameof(Index));
-    }
+  [HttpPost, ActionName("Delete")]
+  [ValidateAntiForgeryToken]
+  public async Task<IActionResult> DeleteConfirmed(Guid id)
+  {
+    await _mediator.Send(new DeleteInvoiceCommand(id));
+    return RedirectToAction(nameof(Index));
+  }
 }
+

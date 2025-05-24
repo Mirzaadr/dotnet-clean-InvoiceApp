@@ -1,0 +1,198 @@
+@using System.Globalization;
+@model InvoiceFormViewModel
+
+@{
+    var isEdit = Model.Invoice.Id != Guid.Empty;
+    var action = isEdit ? "Edit" : "Create";
+}
+
+<form asp-action="@action" method="post" id="invoiceForm">
+    @Html.AntiForgeryToken()
+
+    <div class="row g-2 mb-3">
+        <div class="col-lg-6">
+            <div class="card h-100">
+                <div class="card-header">
+                    Invoice Details
+                </div>
+                <div class="card-body">
+                    @if (isEdit)
+                    {
+                        <div class="row mb-3" hidden>
+                            <label class="col-sm-4 col-form-label">Id</label>
+                            <div class="col-sm-8">
+                                <input asp-for="Invoice.Id" class="form-control-plaintext" value="@Model.Invoice.Id" readonly>
+                            </div>
+                        </div>
+                    }
+                    <div class="row mb-3">
+                        <label class="col-sm-4 col-form-label">Invoice No</label>
+                        <div class="col-sm-8">
+                            <input asp-for="Invoice.InvoiceNumber" class="form-control-plaintext" value="@Model.Invoice.InvoiceNumber" readonly>
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <label class="col-sm-4 col-form-label">Status</label>
+                        <div class="col-sm-8">
+                            <select asp-for="Invoice.Status" class="form-select">
+                                <option value="">-- Select --</option>
+                                <option>Draft</option>
+                                <option>Sent</option>
+                                <option>Paid</option>
+                            </select>
+                            <span asp-validation-for="Invoice.Status" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <label class="col-sm-4 col-form-label">Issue Date</label>
+                        <div class="col-sm-8">
+                            <input class="form-control" type="date" asp-for="Invoice.IssueDate">
+                            <span asp-validation-for="Invoice.IssueDate" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <label class="col-sm-4 col-form-label">Due Date</label>
+                        <div class="col-sm-8">
+                            <input class="form-control" type="date" asp-for="Invoice.DueDate">
+                            <span asp-validation-for="Invoice.DueDate" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-6">
+            <div class="card h-100">
+                <div class="card-header">
+                    Client Details
+                </div>
+                <div class="card-body">
+                    <div class="row mb-3">
+                        <label class="col-sm-4 col-form-label" for="ClientId">Client</label>
+                        <div class="col-sm-8">
+                            <select id="ClientId" name="ClientId" class="client-select form-control" style="width:100%">
+                                <option></option>
+                                @foreach (var client in Model.Clients)
+                                {
+                                    @if (client.Id == Model.Invoice.ClientId) {
+                                        <option value="@client.Id" selected>
+                                            @client.Name
+                                        </option>
+                                    } else {
+                                        <option value="@client.Id" >
+                                            @client.Name
+                                        </option>
+                                    }
+                                }
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <label class="col-sm-4 col-form-label">Email</label>
+                        <div class="col-sm-8">
+                            <input class="form-control" id="client-email" disabled>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <label class="col-sm-4 col-form-label">Phone</label>
+                        <div class="col-sm-8">
+                            <input class="form-control" id="client-phone" disabled>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <label class="col-sm-4 col-form-label">Address</label>
+                        <div class="col-sm-8">
+                            <textarea class="form-control" id="client-address" disabled></textarea>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    @* <div class="card-header">
+        Invoice Items
+    </div> *@
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h4 class="h-4">Items</h4>
+
+        <button type="button" class="btn btn-secondary btn-sm" id="add-item">Add Item</button>
+    </div>
+    <table class="table table-bordered" id="itemsTable">
+        <thead>
+            <tr>
+                @* <th>Product ID</th> *@
+                <th>Product</th>
+                <th>Unit Price</th>
+                <th>Quantity</th>
+                <th>Total</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody id="invoice-items-body">
+            @for (int i = 0; i < Model.Invoice.Items.Count; i++)
+            {
+                var item = Model.Invoice.Items[i];
+                <tr class="invoice-item-row">
+                    <td>
+                        <select class="form-control product-select" name="Items[@i].ProductId" data-index="@i" style="width:100%">
+                            <option></option>
+                            @foreach (var product in Model.Products)
+                            {
+                                @if (product.Id == item.ProductId)
+                                {
+                                    <option value="@product.Id" selected>@product.Name</option>
+                                }
+                                else
+                                {
+                                    <option value="@product.Id">@product.Name</option>
+                                }
+                            }
+                        </select>
+                    </td>
+                    <td><input type="text" class="product-price form-control-plaintext" disabled data-unit-price="@(string.Format(CultureInfo.InvariantCulture, "{0}", item.UnitPrice))" value="@string.Format("{0:C2}", item.UnitPrice)"></td>
+                    <td><input type="number" class="quantity-input form-control" name="Items[@i].Quantity" value="@item.Quantity" min="1" /></td>
+                    <td><input class="item-total form-control-plaintext" disabled id="item-total" value="@((item.UnitPrice * item.Quantity).ToString("C"))"></td>
+                    <td><button type="button" class="btn btn-danger btn-sm remove-item">Delete</button></td>
+                </tr>
+            }
+
+        </tbody>
+        <tfoot>
+            <tr>
+                <td colspan="3" class="text-end">
+                    <p class="mb-0 py-1">Total:</p>
+                </td>
+                <td colspan="2">
+                    <p id="invoice-total" class="mb-0 py-1">$0.00</p>
+                </td>
+            </tr>
+        </tfoot>
+    </table>
+
+    @* <button type="button" class="btn btn-secondary" id="addItemBtn">Add Item</button> *@
+    <br /><br />
+    <button type="submit" class="btn btn-primary">Submit</button>
+    <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+</form>
+
+<!-- 🔒 Template goes here -->
+<script type="text/html" id="invoice-item-template">
+    <tr class="invoice-item-row">
+        <td>
+            <select class="form-control product-select" name="Items[{{index}}].ProductId" data-index="{{index}}" style="width:100%">
+                <option></option>
+                @foreach (var product in Model.Products)
+                {
+                    <option value="@product.Id">@product.Name</option>
+                }
+            </select>
+        </td>
+        <td><input type="text" class="product-price form-control-plaintext" disabled data-unit-price="0.00" ></td>
+        <td><input type="number" class="quantity-input form-control" name="Items[{{index}}].Quantity" value="1" min="1" /></td>
+        <td><input class="item-total form-control-plaintext" disabled id="item-total"></td>
+        <td><button type="button" class="btn btn-danger btn-sm remove-item">Delete</button></td>
+    </tr>
+</script>
+
