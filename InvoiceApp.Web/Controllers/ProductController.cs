@@ -37,7 +37,7 @@ public class ProductsController : Controller
 
     public IActionResult Create()
     {
-        return View();
+        return View(new ProductDto());
     }
 
     [HttpPost]
