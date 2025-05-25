@@ -18,8 +18,10 @@
     <script src="~/js/invoice-form.js"></script>
 
     <script>
-        @* initialize first row *@
-        addInvoiceItemRow();
+        @* initialize first row if empty*@
+        if ($("#invoice-items-body tr").length < 1) {
+            addInvoiceItemRow();
+        }
     </script>
 
 }

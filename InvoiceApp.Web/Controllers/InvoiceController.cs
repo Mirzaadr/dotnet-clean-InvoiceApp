@@ -10,6 +10,7 @@ using InvoiceApp.Application.Invoices.Delete;
 using InvoiceApp.Web.Models.ViewModels;
 using InvoiceApp.Application.Clients.Get;
 using InvoiceApp.Application.Products.Get;
+using InvoiceApp.Application.Invoices.Update;
 
 namespace InvoiceApp.Web.Controllers;
 
@@ -29,21 +30,7 @@ public class InvoiceController : Controller
     // var command = _mapper.Map<CreateMenuCommand>((request, hostId));
     var query = new GetInvoicesQuery(page, pageSize, search);
     var result = await _mediator.Send(query);
-
-    // ViewBag.CurrentPage = page;
-    // ViewBag.PageSize = pageSize;
-    // ViewBag.TotalItems = totalItems;
-    // ViewBag.TotalPages = (int)Math.Ceiling((double)totalItems / pageSize);
     ViewBag.SearchTerm = search;
-
-    // var viewModel = new PagedViewModel<InvoiceDTO>
-    // {
-    //     CurrentPage = result.Page,
-    //     SearchTerm = searchTerm,
-    //     TotalItems = result.TotalCount,
-    //     TotalPages = (int)Math.Ceiling((double)result.TotalCount / pageSize),
-    //     Items = result.Items
-    // };
     return View(result);
   }
 
@@ -73,9 +60,9 @@ public class InvoiceController : Controller
 
     var formData = new InvoiceFormViewModel
     {
-        Invoice = newInvoice,
-        Clients = clients.Items,
-        Products = products.Items
+      Invoice = newInvoice,
+      Clients = clients.Items,
+      Products = products.Items
     };
     return View(formData);
   }
@@ -84,7 +71,33 @@ public class InvoiceController : Controller
   [ValidateAntiForgeryToken]
   public async Task<IActionResult> Create(CreateInvoiceCommand command)
   {
-    if (!ModelState.IsValid) return View(command);
+    if (!ModelState.IsValid)
+    {
+      var clients = await _mediator.Send(new GetClientsQuery(1, null, null));
+      var products = await _mediator.Send(new GetProductsQuery(1, null, null));
+
+      var formData = new InvoiceFormViewModel
+      {
+        Invoice = invoice,
+        Clients = clients.Items,
+        Products = products.Items
+      };
+      return View(formData);
+    }
+    var command = new CreateInvoiceCommand(
+      invoice.ClientId,
+      invoice.IssueDate,
+      invoice.DueDate,
+      invoice.Items!
+        .ConvertAll(
+          item => new InvoiceItemCommand(
+            item.ProductId,
+            item.ProductName,
+            item.Quantity,
+            item.UnitPrice
+          )
+      )
+    );
     await _mediator.Send(command);
     // return RedirectToAction(nameof(Details), new { id = newId });
     return RedirectToAction(nameof(Index));
@@ -101,9 +114,9 @@ public class InvoiceController : Controller
 
     var formData = new InvoiceFormViewModel
     {
-        Invoice = invoice,
-        Clients = clients.Items,
-        Products = products.Items
+      Invoice = invoice,
+      Clients = clients.Items,
+      Products = products.Items
     };
 
     return View("Edit", formData);
@@ -111,23 +124,28 @@ public class InvoiceController : Controller
 
   [HttpPost]
   [ValidateAntiForgeryToken]
-  public async Task<IActionResult> Edit(Guid id, InvoiceFormDTO model)
+  public async Task<IActionResult> Edit(Guid id, [Bind(Prefix = "Invoice")]InvoiceDTO invoice)
   {
-      if (id != model.Id)
+      if (id != invoice.Id)
           return BadRequest();
 
       if (!ModelState.IsValid)
-          return View("Edit", model);
+      {
+          var clients = await _mediator.Send(new GetClientsQuery(1, null, null));
+          var products = await _mediator.Send(new GetProductsQuery(1, null, null));
 
-      // var command = new UpdateInvoiceCommand
-      // {
-      //     Id = model.Id,
-      //     ClientId = model.ClientId,
-      //     IssueDate = model.IssueDate,
-      //     Items = model.Items
-      // };
+          var formData = new InvoiceFormViewModel
+          {
+            Invoice = invoice,
+            Clients = clients.Items,
+            Products = products.Items
+          };
+          return View("Edit", formData);
+      }
 
-      // await _mediator.Send(command);
+      var command = new UpdateInvoiceCommand(invoice);
+
+      await _mediator.Send(command);
       return RedirectToAction(nameof(Index));
   }
 
