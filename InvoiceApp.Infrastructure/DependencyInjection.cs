@@ -35,6 +35,10 @@ public static class DependencyInjection
         // Services
         services.AddSingleton<IInvoiceNumberGenerator, InvoiceNumberGenerator>();
         services.AddSingleton<IDateTimeProvider, DateTimeProvider>();
+
+        services.AddMemoryCache();
+        services.AddScoped<ICacheService, MemoryCacheService>();
+
         
         return services;
     }
