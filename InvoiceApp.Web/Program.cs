@@ -1,12 +1,13 @@
 using InvoiceApp.Application;
 using InvoiceApp.Infrastructure;
 using InvoiceApp.Infrastructure.Persistence;
+using InvoiceApp.Web;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-builder.Services.AddControllersWithViews();
 builder.Services
+    .AddPresentation()
     .AddApplication()
     .AddInfrastructure(builder.Configuration);
 

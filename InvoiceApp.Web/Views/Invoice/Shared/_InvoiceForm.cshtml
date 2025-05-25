@@ -90,6 +90,7 @@
                                 }
                             </select>
                             <input hidden id="client-name" name="Invoice.ClientName">
+                            <span asp-validation-for="Invoice.ClientName" class="text-danger"></span>
                         </div>
                     </div>
 
@@ -154,6 +155,7 @@
                                 }
                             }
                         </select>
+                        <span asp-validation-for="Invoice.Items[@i].ProductName" class="text-danger"></span>
                         <input hidden name="Invoice.Items[@i].ProductName" value="@item.ProductName" class="product-name" >
                         @if (isEdit)
                         {
@@ -202,6 +204,7 @@
                 }
             </select>
             <input hidden name="Invoice.Items[{{index}}].ProductName" value="" class="product-name" >
+            <span data-valmsg-for="Invoice.Items[{{index}}].ProductName" class="text-danger"></span>
         </td>
         <td>
             <input type="text" class="product-price form-control-plaintext" disabled data-unit-price="0.00" >

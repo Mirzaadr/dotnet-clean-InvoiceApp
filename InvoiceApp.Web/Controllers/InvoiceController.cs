@@ -1,16 +1,13 @@
 using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
-using InvoiceApp.Web.Models;
 using MediatR;
 using InvoiceApp.Application.Invoices.GetById;
 using InvoiceApp.Application.Invoices.Get;
 using InvoiceApp.Application.DTOs;
 using InvoiceApp.Application.Invoices.Create;
 using InvoiceApp.Application.Invoices.Delete;
-using InvoiceApp.Web.Models.ViewModels;
-using InvoiceApp.Application.Clients.Get;
-using InvoiceApp.Application.Products.Get;
 using InvoiceApp.Application.Invoices.Update;
+using InvoiceApp.Web.Services;
 
 namespace InvoiceApp.Web.Controllers;
 
@@ -18,11 +15,13 @@ public class InvoiceController : Controller
 {
   private readonly ILogger<HomeController> _logger;
   private readonly ISender _mediator;
+  private readonly IInvoiceFormViewModelFactory _formFactory;
 
-  public InvoiceController(ILogger<HomeController> logger, ISender mediator)
+  public InvoiceController(ILogger<HomeController> logger, ISender mediator, IInvoiceFormViewModelFactory formFactory)
   {
     _logger = logger;
     _mediator = mediator;
+    _formFactory = formFactory;
   }
 
   public async Task<IActionResult> Index(int page = 1, int pageSize = 10, string search = "")
@@ -43,9 +42,6 @@ public class InvoiceController : Controller
 
   public async Task<IActionResult> Create()
   {
-    var clients = await _mediator.Send(new GetClientsQuery(1, null, null));
-    var products = await _mediator.Send(new GetProductsQuery(1, null, null));
-
     var newInvoice = new InvoiceDTO
     {
       Id = Guid.Empty,
@@ -58,30 +54,19 @@ public class InvoiceController : Controller
       Items = new List<InvoiceItemDto>()
     };
 
-    var formData = new InvoiceFormViewModel
-    {
-      Invoice = newInvoice,
-      Clients = clients.Items,
-      Products = products.Items
-    };
+    var formData = await _formFactory.CreateAsync(newInvoice);
     return View(formData);
   }
 
   [HttpPost]
   [ValidateAntiForgeryToken]
-  public async Task<IActionResult> Create(CreateInvoiceCommand command)
+  public async Task<IActionResult> Create([Bind(Prefix = "Invoice")] InvoiceDTO invoice)
   {
+    ValidateItems(invoice);
+
     if (!ModelState.IsValid)
     {
-      var clients = await _mediator.Send(new GetClientsQuery(1, null, null));
-      var products = await _mediator.Send(new GetProductsQuery(1, null, null));
-
-      var formData = new InvoiceFormViewModel
-      {
-        Invoice = invoice,
-        Clients = clients.Items,
-        Products = products.Items
-      };
+      var formData = await _formFactory.CreateAsync(invoice);
       return View(formData);
     }
     var command = new CreateInvoiceCommand(
@@ -109,37 +94,23 @@ public class InvoiceController : Controller
     if (invoice == null)
       return NotFound();
 
-    var clients = await _mediator.Send(new GetClientsQuery(1, null, null));
-    var products = await _mediator.Send(new GetProductsQuery(1, null, null));
-
-    var formData = new InvoiceFormViewModel
-    {
-      Invoice = invoice,
-      Clients = clients.Items,
-      Products = products.Items
-    };
+    var formData = await _formFactory.CreateAsync(invoice);
 
     return View("Edit", formData);
   }
 
   [HttpPost]
   [ValidateAntiForgeryToken]
-  public async Task<IActionResult> Edit(Guid id, [Bind(Prefix = "Invoice")]InvoiceDTO invoice)
+  public async Task<IActionResult> Edit(Guid id, [Bind(Prefix = "Invoice")] InvoiceDTO invoice)
   {
       if (id != invoice.Id)
           return BadRequest();
 
+      ValidateItems(invoice);
+
       if (!ModelState.IsValid)
       {
-          var clients = await _mediator.Send(new GetClientsQuery(1, null, null));
-          var products = await _mediator.Send(new GetProductsQuery(1, null, null));
-
-          var formData = new InvoiceFormViewModel
-          {
-            Invoice = invoice,
-            Clients = clients.Items,
-            Products = products.Items
-          };
+          var formData = await _formFactory.CreateAsync(invoice);
           return View("Edit", formData);
       }
 
@@ -162,6 +133,24 @@ public class InvoiceController : Controller
   {
     await _mediator.Send(new DeleteInvoiceCommand(id));
     return RedirectToAction(nameof(Index));
+  }
+
+  private void ValidateItems(InvoiceDTO invoice)
+  {
+      bool hasAnyValidItem = invoice.Items != null &&
+                       invoice.Items.Any(item => item.ProductId != Guid.Empty);
+
+      bool hasAnyInvalidItem = invoice.Items != null &&
+                              invoice.Items.Any(item => item.ProductId == Guid.Empty);
+
+      if (!hasAnyValidItem)
+      {
+        ModelState.AddModelError("Invoice.Items", "At least one item must be selected.");
+      }
+      else if (hasAnyInvalidItem)
+      {
+        ModelState.AddModelError("Invoice.Items", "One or more items are missing a selection.");
+      }
   }
 }
 

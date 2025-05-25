@@ -1,3 +1,5 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace InvoiceApp.Application.DTOs;
 
 public class InvoiceDTO
@@ -5,6 +7,7 @@ public class InvoiceDTO
   public Guid Id { get; set; }
   public string InvoiceNumber { get; set; } = "";
   public Guid ClientId { get; set; }
+  [Required(ErrorMessage = "Client cannot be empty")]
   public string ClientName { get; set; } = "";
   public string? ClientEmail { get; set; }
   public string? ClientAddress { get; set; }
@@ -24,6 +27,7 @@ public class InvoiceItemDto
 {
     public Guid Id { get; set; }
     public Guid ProductId { get; set; }
+    [Required(ErrorMessage = "Product cannot be empty")]
     public string ProductName { get; set; } = "";
     public int Quantity { get; set; }
     public double UnitPrice { get; set; }
