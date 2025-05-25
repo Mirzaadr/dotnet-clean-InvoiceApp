@@ -54,7 +54,7 @@ public class Invoice : BaseEntity<InvoiceId>
       List<InvoiceItem> items
     )
     {
-        
+
         return new(
           InvoiceId.New(),
           clientId,
@@ -68,7 +68,7 @@ public class Invoice : BaseEntity<InvoiceId>
           DateTime.UtcNow
         );
     }
-    
+
     public void AddItem(Product product, int quantity)
     {
         if (Status != InvoiceStatus.Draft)
@@ -101,5 +101,17 @@ public class Invoice : BaseEntity<InvoiceId>
         if (Status == InvoiceStatus.Paid)
             throw new InvalidOperationException("Invoice is already paid.");
         Status = InvoiceStatus.Paid;
+    }
+    
+    public void UpdateClient(Guid clientId, string clientName)
+    {
+        ClientId = new ClientId(clientId);
+        ClientName = clientName;
+    }
+
+    public void UpdateItems(List<InvoiceItem> updatedItems)
+    {
+        _items.Clear();
+        _items.AddRange(updatedItems);
     }
 }

@@ -79,7 +79,14 @@ public class InvoiceRepository : IInvoiceRepository
 
     public Task UpdateAsync(Invoice invoice)
     {
-        throw new NotImplementedException();
+        var currentInvoice =  _context.Invoices.FirstOrDefault(i => i.Id == invoice.Id);
+        if (currentInvoice is null)
+            throw new Exception("Invoice not found");
+        currentInvoice.UpdateClient(invoice.ClientId.Value, invoice.ClientName ?? currentInvoice.ClientName);
+        currentInvoice.UpdateItems(invoice.Items.ToList());
+
+        _context.SaveChanges();
+        return Task.CompletedTask;
     }
 
 }
