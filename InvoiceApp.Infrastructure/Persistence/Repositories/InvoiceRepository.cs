@@ -77,6 +77,12 @@ public class InvoiceRepository : IInvoiceRepository
         return await Task.FromResult(invoice);
     }
 
+    public async Task<Invoice> GetLatestAsync()
+    {
+        var invoice = _context.Invoices.OrderByDescending(i => i.CreatedDate).First();
+        return await Task.FromResult(invoice);
+    }
+
     public Task UpdateAsync(Invoice invoice)
     {
         var currentInvoice =  _context.Invoices.FirstOrDefault(i => i.Id == invoice.Id);

@@ -8,6 +8,7 @@ using InvoiceApp.Application.Invoices.Create;
 using InvoiceApp.Application.Invoices.Delete;
 using InvoiceApp.Application.Invoices.Update;
 using InvoiceApp.Web.Services;
+using InvoiceApp.Application.Commons.Interface;
 
 namespace InvoiceApp.Web.Controllers;
 
@@ -16,12 +17,14 @@ public class InvoiceController : Controller
   private readonly ILogger<HomeController> _logger;
   private readonly ISender _mediator;
   private readonly IInvoiceFormViewModelFactory _formFactory;
+  private readonly IInvoiceNumberGenerator _invoiceNumberGenerator;
 
-  public InvoiceController(ILogger<HomeController> logger, ISender mediator, IInvoiceFormViewModelFactory formFactory)
+  public InvoiceController(ILogger<HomeController> logger, ISender mediator, IInvoiceFormViewModelFactory formFactory, IInvoiceNumberGenerator invoiceNumberGenerator)
   {
     _logger = logger;
     _mediator = mediator;
     _formFactory = formFactory;
+    _invoiceNumberGenerator = invoiceNumberGenerator;
   }
 
   public async Task<IActionResult> Index(int page = 1, int pageSize = 10, string search = "")
@@ -42,10 +45,11 @@ public class InvoiceController : Controller
 
   public async Task<IActionResult> Create()
   {
+    var newInvoiceNumber = await _invoiceNumberGenerator.GenerateAsync();
     var newInvoice = new InvoiceDTO
     {
       Id = Guid.Empty,
-      InvoiceNumber = "INV-100001",
+      InvoiceNumber = newInvoiceNumber,
       ClientId = Guid.Empty,
       IssueDate = DateTime.Now,
       DueDate = DateTime.Now.AddDays(30),
@@ -71,6 +75,7 @@ public class InvoiceController : Controller
     }
     var command = new CreateInvoiceCommand(
       invoice.ClientId,
+      invoice.InvoiceNumber,
       invoice.IssueDate,
       invoice.DueDate,
       invoice.Items!

@@ -9,14 +9,12 @@ namespace InvoiceApp.Application.Invoices.Create;
 internal class CreateInvoiceCommandHandler : IRequestHandler<CreateInvoiceCommand>
 {
     private readonly IClientRepository _clientRepository;
-    private readonly IInvoiceRepository _invoiceRepository;
-  private readonly IInvoiceNumberGenerator _invoiceNumberGenerator;
+  private readonly IInvoiceRepository _invoiceRepository;
 
-  public CreateInvoiceCommandHandler(IInvoiceRepository invoiceRepository, IClientRepository clientRepository, IInvoiceNumberGenerator invoiceNumberGenerator)
+  public CreateInvoiceCommandHandler(IInvoiceRepository invoiceRepository, IClientRepository clientRepository)
   {
       _invoiceRepository = invoiceRepository;
-      _clientRepository = clientRepository;
-      _invoiceNumberGenerator = invoiceNumberGenerator;
+    _clientRepository = clientRepository;
   }
 
   public async Task Handle(CreateInvoiceCommand command, CancellationToken cancellationToken)
@@ -29,7 +27,7 @@ internal class CreateInvoiceCommandHandler : IRequestHandler<CreateInvoiceComman
     await Task.CompletedTask;
     var invoice = Invoice.Create(
       // request.clientId,
-      invoiceNum: _invoiceNumberGenerator.Generate(),
+      invoiceNum: command.InvoiceNumber,
       clientId: client.Id,
       clientName: client.Name,
       issueDate: command.IssueDate,

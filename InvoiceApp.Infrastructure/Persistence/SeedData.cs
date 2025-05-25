@@ -86,7 +86,7 @@ public static class SeedData
                 InvoiceId.New(),
                 client.Id,
                 client.Name,
-                $"INV-{invoiceNumberSeed + i}",
+                $"INV-{invoiceNumberSeed + i}-2025",
                 DateTime.Today.AddDays(-random.Next(30)),
                 DateTime.Now.AddDays(random.Next(30)),
                 GetRandomStatus(),

@@ -2,5 +2,5 @@ namespace InvoiceApp.Application.Commons.Interface;
 
 public interface IInvoiceNumberGenerator
 {
-    string Generate();
+    Task<string> GenerateAsync();
 }

@@ -4,6 +4,7 @@ namespace InvoiceApp.Application.Invoices.Create;
 
 public record CreateInvoiceCommand(
   Guid ClientId,
+  string InvoiceNumber,
   DateTime IssueDate,
   DateTime DueDate,
   // string Status,

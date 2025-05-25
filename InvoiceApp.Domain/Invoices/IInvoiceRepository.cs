@@ -5,6 +5,7 @@ namespace InvoiceApp.Domain.Invoices;
 public interface IInvoiceRepository
 {
     Task<Invoice?> GetByIdAsync(InvoiceId id);
+    Task<Invoice> GetLatestAsync();
     Task<PagedList<Invoice>> GetAllAsync(int page, int pageSize, string? searchTerm);
     Task<List<Invoice>> GetAllAsync();
     Task AddAsync(Invoice invoice);
