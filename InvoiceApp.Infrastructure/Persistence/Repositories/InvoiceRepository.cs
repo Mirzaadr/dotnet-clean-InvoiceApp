@@ -2,6 +2,7 @@ using InvoiceApp.Domain.Commons.Models;
 using InvoiceApp.Domain.Invoices;
 using Microsoft.EntityFrameworkCore;
 using System.Linq;
+using System.Linq.Expressions;
 
 namespace InvoiceApp.Infrastructure.Persistence.Repositories;
 
@@ -49,7 +50,13 @@ public class InvoiceRepository : IInvoiceRepository
         });
     }
 
-    public async Task<PagedList<Invoice>> GetAllAsync(int page, int pageSize, string? searchTerm)
+    public async Task<PagedList<Invoice>> GetAllAsync(
+        int page,
+        int pageSize,
+        string? searchTerm,
+        string? sortColumn,
+        string? sortOrder
+    )
     {
         var invoiceQuery = _context.Invoices.AsQueryable();
 
@@ -63,15 +70,36 @@ public class InvoiceRepository : IInvoiceRepository
             );
         }
 
+        Expression<Func<Invoice, object>> keySelector = sortColumn?.ToLower() switch
+        {
+            "number" => i => i.InvoiceNumber,
+            "issueDate" => i => i.IssueDate,
+            "dueDate" => i => i.DueDate,
+            "createdDate" => i => i.CreatedDate!,
+            "updatedDate" => i => i.UpdatedDate!,
+            "total" => i => i.TotalAmount,
+            "client_name" => i => i.ClientName,
+            _ => i => i.InvoiceNumber,
+        };
+
+        if (sortOrder?.ToLower() == "desc")
+        {
+            invoiceQuery = invoiceQuery.OrderByDescending(keySelector);
+        }
+        else
+        {
+            invoiceQuery = invoiceQuery.OrderBy(keySelector);
+        }
+
         return await PagedList<Invoice>.CreateAsync(invoiceQuery, page, pageSize);
     }
 
-  public Task<List<Invoice>> GetAllAsync()
-  {
-    throw new NotImplementedException();
-  }
+    public Task<List<Invoice>> GetAllAsync()
+    {
+        return Task.FromResult(_context.Invoices);
+    }
 
-  public async Task<Invoice?> GetByIdAsync(InvoiceId id)
+    public async Task<Invoice?> GetByIdAsync(InvoiceId id)
     {
         var invoice =  _context.Invoices.FirstOrDefault(i => i.Id == id);
         return await Task.FromResult(invoice);
@@ -83,9 +111,17 @@ public class InvoiceRepository : IInvoiceRepository
         return await Task.FromResult(invoice);
     }
 
+    public Task<double> GetTotalAmountAsync()
+    {
+        var totalRevenue = _context.Invoices
+            .SelectMany(i => i.Items)
+            .Sum(ii => ii.Quantity * ii.UnitPrice);
+        return Task.FromResult(totalRevenue);
+    }
+
     public Task UpdateAsync(Invoice invoice)
     {
-        var currentInvoice =  _context.Invoices.FirstOrDefault(i => i.Id == invoice.Id);
+        var currentInvoice = _context.Invoices.FirstOrDefault(i => i.Id == invoice.Id);
         if (currentInvoice is null)
             throw new Exception("Invoice not found");
         currentInvoice.UpdateClient(invoice.ClientId.Value, invoice.ClientName ?? currentInvoice.ClientName);
