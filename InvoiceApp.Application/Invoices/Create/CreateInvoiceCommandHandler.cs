@@ -1,5 +1,7 @@
+using InvoiceApp.Application.Commons.Interface;
 using InvoiceApp.Domain.Clients;
 using InvoiceApp.Domain.Invoices;
+using InvoiceApp.Domain.Products;
 using MediatR;
 
 namespace InvoiceApp.Application.Invoices.Create;
@@ -7,35 +9,41 @@ namespace InvoiceApp.Application.Invoices.Create;
 internal class CreateInvoiceCommandHandler : IRequestHandler<CreateInvoiceCommand>
 {
     private readonly IClientRepository _clientRepository;
-    private readonly IInvoiceRepository _invoiceRepository;
+  private readonly IInvoiceRepository _invoiceRepository;
 
-    public CreateInvoiceCommandHandler(IInvoiceRepository invoiceRepository, IClientRepository clientRepository)
-    {
-        _invoiceRepository = invoiceRepository;
-        _clientRepository = clientRepository;
-    }
+  public CreateInvoiceCommandHandler(IInvoiceRepository invoiceRepository, IClientRepository clientRepository)
+  {
+      _invoiceRepository = invoiceRepository;
+    _clientRepository = clientRepository;
+  }
 
-    public async Task Handle(CreateInvoiceCommand request, CancellationToken cancellationToken)
+  public async Task Handle(CreateInvoiceCommand command, CancellationToken cancellationToken)
+  {
+    var client = await _clientRepository.GetByIdAsync(new ClientId(command.ClientId));
+    if (client is null)
     {
-        var client = await _clientRepository.GetById(new ClientId(request.clientId));
-        if (client is null)
-        {
-            return;
-        }
-        await Task.CompletedTask;
-        var invoice = Invoice.Create(
-          // request.clientId,
-          client.Id,
-          request.invoiceDate,
-          request.dueDate,
-          new InvoiceStatus(InvoiceStatusType.Pending),
-          request.listItems.ConvertAll(item => LineItem.Create(
-            item.name,
-            item.description,
-            item.qty,
-            item.unitPrice
-          ))
-        );
-        _invoiceRepository.Create(invoice);
+        return;
     }
+    await Task.CompletedTask;
+    var invoice = Invoice.Create(
+      // request.clientId,
+      invoiceNum: command.InvoiceNumber,
+      clientId: client.Id,
+      clientName: client.Name,
+      issueDate: command.IssueDate,
+      dueDate: command.DueDate,
+      status: InvoiceStatus.Draft,
+      items: command.Items.ConvertAll(item => new InvoiceItem(
+        id: InvoiceItemId.New(),
+        productId: new ProductId(item.ProductId),
+        productName: item.ProductName,
+        quantity: item.Quantity,
+        unitPrice: item.UnitPrice,
+        createdTime: null,
+        updatedTime: null
+      ))
+    );
+
+    await _invoiceRepository.AddAsync(invoice);
+  }
 }

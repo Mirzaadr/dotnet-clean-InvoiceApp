@@ -1,0 +1,34 @@
+@model PagedList<ProductDto>
+@{
+    ViewData["Title"] = "List Products";
+    var search = ViewBag.SearchTerm ?? "";
+}
+
+<div class="text-start mb-5">
+    <h1 class="display-6">@ViewData["Title"]</h1>
+</div>
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <!-- Left: Add Button -->
+    <div>
+        <a class="btn btn-primary mb-2" asp-action="Create">
+            <i class="bi bi-plus"></i>
+            New Product
+        </a>
+    </div>
+
+    <!-- Right: Search Form -->
+    @await Component.InvokeAsync("SearchForm", new SearchFormViewModel {
+        SearchTerm = search
+    })
+</div>
+
+<partial name="./Shared/_ProductTable" model="@Model.Items" />
+
+@await Component.InvokeAsync("Pagination", new PaginationViewModel {
+    CurrentPage = Model.Page,
+    PageSize = Model.PageSize,
+    TotalItems = Model.TotalCount,
+    TotalPages = Model.TotalPages,
+    SearchTerm = search
+})

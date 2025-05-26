@@ -1,17 +1,17 @@
-namespace InvoiceApp.Domain.Common.Models;
+namespace InvoiceApp.Domain.Commons.Models;
 
 public class BaseEntity<TId> : IEquatable<BaseEntity<TId>>
     where TId : notnull
 {
     public TId Id { get; private set; }
-    public DateTime CreatedDate { get; set; }
-    public DateTime UpdatedDate { get; set; }
+    public DateTime? CreatedDate { get; set; }
+    public DateTime? UpdatedDate { get; set; }
 
-    protected BaseEntity(TId id, DateTime createdDate, DateTime updatedDate)
+    protected BaseEntity(TId id, DateTime? createdDate, DateTime? updatedDate)
     {
       Id = id;
-      CreatedDate = createdDate;
-      UpdatedDate = updatedDate;
+      CreatedDate = createdDate ?? DateTime.UtcNow;
+      UpdatedDate = updatedDate ?? DateTime.UtcNow;
     }
 
     public override bool Equals(object? other)

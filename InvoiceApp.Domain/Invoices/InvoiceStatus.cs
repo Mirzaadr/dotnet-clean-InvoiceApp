@@ -1,39 +1,32 @@
+using InvoiceApp.Domain.Commons.Models;
+
 namespace InvoiceApp.Domain.Invoices;
 
-public enum InvoiceStatusType
+public sealed class InvoiceStatus : ValueObject
 {
-    Pending = 0,
-    Paid = 1,
-    Overdue = 2,
-    Cancelled = 3
-}
-public class InvoiceStatus
-{
-    public InvoiceStatusType Status { get; private set; }
+    public static readonly InvoiceStatus Draft = new("Draft");
+    public static readonly InvoiceStatus Sent = new("Sent");
+    public static readonly InvoiceStatus Paid = new("Paid");
 
-    public InvoiceStatus(InvoiceStatusType status)
-    {
-        Status = status;
-    }
+    public string Value { get; }
 
-    public bool IsValidStatus(InvoiceStatusType status)
-    {
-        return Enum.IsDefined(typeof(InvoiceStatusType), status);
-    }
+    private InvoiceStatus(string value) => Value = value;
 
-    public InvoiceStatus ChangeStatus(InvoiceStatusType newStatus)
+    public static InvoiceStatus From(string value)
     {
-        if (this.Status == InvoiceStatusType.Paid && newStatus == InvoiceStatusType.Pending)
+        return value switch
         {
-            throw new InvalidOperationException("Cannot revert a paid invoice to pending");
-        }
-
-        return new InvoiceStatus(newStatus);
+            "Draft" => Draft,
+            "Sent" => Sent,
+            "Paid" => Paid,
+            _ => throw new ArgumentException($"Invalid status: {value}")
+        };
     }
 
-    public bool IsOverdue(DateTime currentDate)
+    protected override IEnumerable<object> GetEqualityComponents()
     {
-        return Status == InvoiceStatusType.Overdue && currentDate > DateTime.Now;
+        yield return Value;
     }
-    
+
+    public override string ToString() => Value;
 }
