@@ -5,6 +5,7 @@ using InvoiceApp.Application.Products.GetById;
 using InvoiceApp.Application.DTOs;
 using InvoiceApp.Application.Products.Create;
 using InvoiceApp.Application.Products.Delete;
+using InvoiceApp.Application.Products.Update;
 
 namespace InvoiceApp.Web.Controllers;
 
@@ -63,7 +64,8 @@ public class ProductsController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Edit(ProductDto product)
     {
-        // var query = new Create
+        var command = new UpdateProductCommand(product);
+        await _mediator.Send(command);
         return RedirectToAction("Index");
     }
 

@@ -7,6 +7,7 @@ using InvoiceApp.Application.Clients.GetById;
 using InvoiceApp.Application.DTOs;
 using InvoiceApp.Application.Clients.Create;
 using InvoiceApp.Application.Clients.Delete;
+using InvoiceApp.Application.Clients.Update;
 
 namespace InvoiceApp.Web.Controllers;
 
@@ -65,7 +66,9 @@ public class ClientsController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Edit(ClientDto client)
     {
-        // var query = new Create
+        var query = new UpdateClientCommand(client);
+        await _mediator.Send(query);
+        // Optionally, you can add a success message or log the action
         await Task.CompletedTask;
         return RedirectToAction("Index");
     }
