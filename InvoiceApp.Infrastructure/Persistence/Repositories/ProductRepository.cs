@@ -1,3 +1,4 @@
+using InvoiceApp.Application.Commons.Interface;
 using InvoiceApp.Domain.Commons.Models;
 using InvoiceApp.Domain.Products;
 
@@ -7,9 +8,14 @@ public class ProductRepository : IProductRepository
 {
     private readonly InMemoryDbContext _context;
 
-    public ProductRepository(InMemoryDbContext context)
+    private readonly ICacheService _cache;
+    private static readonly string CacheKey = "products_cache";
+    private static readonly TimeSpan CacheDuration = TimeSpan.FromMinutes(30);
+
+    public ProductRepository(InMemoryDbContext context, ICacheService cache)
     {
         _context = context;
+        _cache = cache;
     }
 
     public Task AddAsync(Product product)
@@ -24,6 +30,7 @@ public class ProductRepository : IProductRepository
             existingProduct = product;
         }
         _context.SaveChanges();
+        _cache.Remove(CacheKey);
         return Task.CompletedTask;
     }
 
@@ -39,10 +46,17 @@ public class ProductRepository : IProductRepository
             _context.Products.Remove(product);
         }
         _context.SaveChanges();
+        _cache.Remove(CacheKey);
         return Task.CompletedTask;
     }
 
-    public Task<List<Product>> GetAllAsync() => Task.FromResult(_context.Products);
+    public async Task<List<Product>> GetAllAsync()
+    {
+        var products = await _cache.GetOrCreateAsync(
+            CacheKey, 
+            () => Task.FromResult(_context.Products), CacheDuration);
+        return products;
+    }
 
     public async Task<PagedList<Product>> GetAllAsync(int page, int pageSize, string? searchTerm)
     {
@@ -77,13 +91,18 @@ public class ProductRepository : IProductRepository
         var existingProduct = _context.Products.FirstOrDefault(i => i.Id == product.Id);
         if (existingProduct is null)
         {
-            _context.Add(product);
+            throw new KeyNotFoundException($"Product with ID {product.Id} not found.");
         }
-        else
+
+        if (existingProduct.UnitPrice != product.UnitPrice)
         {
-            existingProduct = product;
+            existingProduct.UpdatePrice(product.UnitPrice);
         }
+
+        existingProduct.UpdateDetails(product.Name, product.Description);
         _context.SaveChanges();
+        _cache.Remove(CacheKey);
+
         return Task.CompletedTask;
     }
 }

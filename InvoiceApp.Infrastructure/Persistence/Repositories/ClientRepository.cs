@@ -1,3 +1,4 @@
+using InvoiceApp.Application.Commons.Interface;
 using InvoiceApp.Domain.Clients;
 using InvoiceApp.Domain.Commons.Models;
 
@@ -6,10 +7,14 @@ namespace InvoiceApp.Infrastructure.Persistence.Repositories;
 public class ClientRepository : IClientRepository
 {
     private readonly InMemoryDbContext _context;
+    private readonly ICacheService _cache;
+    private static readonly string CacheKey = "clients_cache";
+    private static readonly TimeSpan CacheDuration = TimeSpan.FromMinutes(30);
 
-    public ClientRepository(InMemoryDbContext context)
+    public ClientRepository(InMemoryDbContext context, ICacheService cache)
     {
         _context = context;
+        _cache = cache;
     }
 
     public Task AddAsync(Client client)
@@ -24,6 +29,7 @@ public class ClientRepository : IClientRepository
             existingClient = client;
         }
         _context.SaveChanges();
+        _cache.Remove(CacheKey);
         return Task.CompletedTask;
     }
 
@@ -39,10 +45,16 @@ public class ClientRepository : IClientRepository
             _context.Clients.Remove(client);
         }
         _context.SaveChanges();
+        _cache.Remove(CacheKey);
         return Task.CompletedTask;
     }
 
-    public Task<List<Client>> GetAllAsync() => Task.FromResult(_context.Clients);
+    public async Task<List<Client>> GetAllAsync() {
+        var clients = await _cache.GetOrCreateAsync(
+            CacheKey, 
+            () => Task.FromResult(_context.Clients), CacheDuration);
+        return clients;
+    }
     
     public async Task<PagedList<Client>> GetAllAsync(int page, int pageSize, string? searchTerm)
     {
@@ -67,8 +79,23 @@ public class ClientRepository : IClientRepository
         return await Task.FromResult(client);
     }
 
-    public Task UpdateAsync(Client client)
+    public async Task UpdateAsync(Client client)
     {
-        throw new NotImplementedException();
+        var existingClients = _context.Clients.FirstOrDefault(i => i.Id == client.Id);
+        if (existingClients is null)
+        {
+            throw new KeyNotFoundException($"Client with ID {client.Id.ToString()} not found.");
+        }
+
+        existingClients.Update(
+            client.Name,
+            client.Address,
+            client.Email,
+            client.PhoneNumber,
+            null
+        );
+        _context.SaveChanges();
+        _cache.Remove(CacheKey);
+        await Task.CompletedTask;
     }
 }

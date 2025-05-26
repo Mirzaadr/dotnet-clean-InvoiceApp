@@ -15,7 +15,7 @@ public class MemoryCacheService : ICacheService
   public async Task<T> GetOrCreateAsync<T>(string key, Func<Task<T>> factory, TimeSpan expiration)
   {
     if (_cache.TryGetValue<T>(key, out var value))
-      return value;
+      return value!;
 
     var result = await factory();
 

@@ -25,7 +25,22 @@ public class Client : BaseEntity<ClientId>
         Email = email;
         PhoneNumber = phoneNumber;
     }
+    
+    public void Update(
+      string name,
+      string? address,
+      string? email,
+      string? phoneNumber,
+      DateTime? updatedDate
+    )
+    {
+        Name = name;
+        Address = address;
+        Email = email;
+        PhoneNumber = phoneNumber;
+        UpdatedDate = updatedDate ?? DateTime.UtcNow;
+    }
 
     private Client()
-    {}
+  { }
 }

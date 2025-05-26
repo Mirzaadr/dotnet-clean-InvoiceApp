@@ -28,11 +28,13 @@ public class Product : BaseEntity<ProductId>
             throw new ArgumentException("Price cannot be negative.");
 
         UnitPrice = newPrice;
+        UpdatedDate = DateTime.UtcNow;
     }
 
     public void UpdateDetails(string name, string? description)
     {
         Name = name;
         Description = description;
+        UpdatedDate = DateTime.UtcNow;
     }
 }
