@@ -119,7 +119,7 @@ public class InvoiceController : Controller
           return View("Edit", formData);
       }
 
-      var command = new UpdateInvoiceCommand(invoice);
+      var command = new UpdateInvoiceCommand(invoice.Id, invoice.IssueDate, invoice.DueDate, invoice.Items);
 
       await _mediator.Send(command);
       return RedirectToAction(nameof(Index));

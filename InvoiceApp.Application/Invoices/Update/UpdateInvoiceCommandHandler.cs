@@ -20,28 +20,28 @@ internal class UpdateInvoiceCommandHandler : IRequestHandler<UpdateInvoiceComman
   public async Task Handle(UpdateInvoiceCommand command, CancellationToken cancellationToken)
   {
     await Task.CompletedTask;
-    var invoice = new Invoice(
-      // request.clientId,
-      id: new InvoiceId(command.Invoice.Id),
-      invoiceNum: command.Invoice.InvoiceNumber,
-      clientId: new ClientId(command.Invoice.ClientId),
-      clientName: command.Invoice.ClientName,
-      issueDate: command.Invoice.IssueDate,
-      dueDate: command.Invoice.DueDate,
-      status: InvoiceStatus.From(command.Invoice.Status),
-      createdDate: command.Invoice.CreatedDate.GetValueOrDefault(),
-      updatedDate: command.Invoice.UpdatedDate.GetValueOrDefault(),
-      listItems: command.Invoice.Items.ConvertAll(item => new InvoiceItem(
-        id: item.Id == Guid.Empty ? InvoiceItemId.New() : new InvoiceItemId(item.Id),
-        productId: new ProductId(item.ProductId),
-        productName: item.ProductName,
-        quantity: item.Quantity,
-        unitPrice: item.UnitPrice,
-        createdTime: item.CreatedDate,
-        updatedTime: item.UpdatedDate
-      ))
+
+    var currentInvoice = await _invoiceRepository.GetByIdAsync(new InvoiceId(command.InvoiceId));
+    if (currentInvoice is null) throw new Exception("Invoice not found");
+
+    if (currentInvoice.Status != InvoiceStatus.Draft)
+      throw new Exception("Only draft invoices can be updated");
+
+    currentInvoice.UpdateInvoiceDates(
+      issueDate: command.IssueDate,
+      dueDate: command.DueDate
     );
 
-    await _invoiceRepository.UpdateAsync(invoice);
+    currentInvoice.UpdateItems(command.Items.ConvertAll(item => new InvoiceItem(
+      id: item.Id == Guid.Empty ? InvoiceItemId.New() : new InvoiceItemId(item.Id),
+      productId: new ProductId(item.ProductId),
+      productName: item.ProductName,
+      quantity: item.Quantity,
+      unitPrice: item.UnitPrice,
+      createdTime: item.CreatedDate,
+      updatedTime: item.UpdatedDate
+    )));
+
+    await _invoiceRepository.UpdateAsync(currentInvoice);
   }
 }

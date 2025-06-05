@@ -12,9 +12,9 @@ public class Product : BaseEntity<ProductId>
       ProductId id,
       string name,
       double unitPrice,
-      string? description = null,
-      DateTime createdDate = default,
-      DateTime updatedDate = default
+      string? description,
+      DateTime? createdDate,
+      DateTime? updatedDate
     ) : base(id, createdDate, updatedDate)
     {
         Name = name;

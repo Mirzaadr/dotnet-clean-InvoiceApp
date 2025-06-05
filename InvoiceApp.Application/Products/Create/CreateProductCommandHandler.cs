@@ -18,11 +18,11 @@ internal class CreateProductCommandHandler : IRequestHandler<CreateProductComman
     await Task.CompletedTask;
     var newProduct = new Product(
       ProductId.New(),
-      command.product.Name,
-      command.product.Price,
-      command.product.Description,
-      DateTime.Now,
-      DateTime.Now
+      command.Name,
+      command.Price,
+      command.Description,
+      null,
+      null
     );
 
     await _productRepository.AddAsync(newProduct);

@@ -5,11 +5,11 @@ namespace InvoiceApp.Application.Clients.Create;
 
 internal class CreateClientCommandHandler : IRequestHandler<CreateClientCommand>
 {
-    private readonly IClientRepository _clientRepository;
+  private readonly IClientRepository _clientRepository;
 
   public CreateClientCommandHandler(IClientRepository clientRepository)
   {
-      _clientRepository = clientRepository;
+    _clientRepository = clientRepository;
   }
 
   public async Task Handle(CreateClientCommand command, CancellationToken cancellationToken)
@@ -18,10 +18,10 @@ internal class CreateClientCommandHandler : IRequestHandler<CreateClientCommand>
     await Task.CompletedTask;
     var newClient = new Client(
       ClientId.New(),
-      command.client.Name,
-      command.client.Address,
-      command.client.Email,
-      command.client.PhoneNumber,
+      command.Name,
+      command.Address,
+      command.Email,
+      command.PhoneNumber,
       DateTime.Now,
       DateTime.Now
     );

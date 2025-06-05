@@ -43,10 +43,9 @@ public class ProductsController : Controller
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Create(ProductDto product)
+    public async Task<IActionResult> Create(CreateProductCommand product)
     {
-        var query = new CreateProductCommand(product);
-        await _mediator.Send(query);
+        await _mediator.Send(product);
         return RedirectToAction(nameof(Index));
     }
 
@@ -62,10 +61,9 @@ public class ProductsController : Controller
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Edit(ProductDto product)
+    public async Task<IActionResult> Edit(UpdateProductCommand product)
     {
-        var command = new UpdateProductCommand(product);
-        await _mediator.Send(command);
+        await _mediator.Send(product);
         return RedirectToAction("Index");
     }
 

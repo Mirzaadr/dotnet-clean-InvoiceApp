@@ -102,7 +102,7 @@ public class Invoice : BaseEntity<InvoiceId>
             throw new InvalidOperationException("Invoice is already paid.");
         Status = InvoiceStatus.Paid;
     }
-    
+
     public void UpdateClient(Guid clientId, string clientName)
     {
         ClientId = new ClientId(clientId);
@@ -113,5 +113,14 @@ public class Invoice : BaseEntity<InvoiceId>
     {
         _items.Clear();
         _items.AddRange(updatedItems);
+    }
+    
+    public void UpdateInvoiceDates(DateTime issueDate, DateTime dueDate)
+    {
+        if (issueDate > dueDate)
+            throw new InvalidOperationException("Issue date cannot be later than due date.");
+        
+        IssueDate = issueDate;
+        DueDate = dueDate;
     }
 }

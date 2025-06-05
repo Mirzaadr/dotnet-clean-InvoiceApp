@@ -20,15 +20,7 @@ public class InvoiceRepository : IInvoiceRepository
     {
         await Task.CompletedTask.ContinueWith(t =>
         {
-            var existingInvoice = _context.Invoices.FirstOrDefault(i => i.Id == invoice.Id);
-            if (existingInvoice is null)
-            {
-                _context.Add(invoice);
-            }
-            else
-            {
-                existingInvoice = invoice;
-            }
+            _context.Invoices.Add(invoice);
             _context.SaveChanges();
         });
     }
@@ -37,15 +29,7 @@ public class InvoiceRepository : IInvoiceRepository
     {
         await Task.CompletedTask.ContinueWith(t =>
         {
-            var existingInvoice = _context.Invoices.FirstOrDefault(i => i.Id == invoice.Id);
-            if (existingInvoice is null)
-            {
-                throw new Exception("Invoice not found");
-            }
-            else
-            {
-                _context.Invoices.Remove(invoice);
-            }
+            _context.Invoices.Remove(invoice);
             _context.SaveChanges();
         });
     }
@@ -124,6 +108,7 @@ public class InvoiceRepository : IInvoiceRepository
         var currentInvoice = _context.Invoices.FirstOrDefault(i => i.Id == invoice.Id);
         if (currentInvoice is null)
             throw new Exception("Invoice not found");
+        currentInvoice.UpdateInvoiceDates(invoice.IssueDate, invoice.DueDate);
         currentInvoice.UpdateClient(invoice.ClientId.Value, invoice.ClientName ?? currentInvoice.ClientName);
         currentInvoice.UpdateItems(invoice.Items.ToList());
 
