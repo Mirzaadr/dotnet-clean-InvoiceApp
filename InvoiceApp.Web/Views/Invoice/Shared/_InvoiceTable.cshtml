@@ -32,13 +32,7 @@
                     <a href="@Url.Action("Details", "Invoice", new { id = invoice.Id })" class="btn btn-info btn-sm">
                         <i class="bi bi-eye"></i>
                     </a>
-                    <a href="@Url.Action("Edit", "Invoice", new { id = invoice.Id })" class="btn btn-warning btn-sm">
-                        <i class="bi bi-pencil-square"></i>
-                    </a>
-                    @* <a href="@Url.Action("Delete", "Invoice", new { id = invoice.Id })" class="btn btn-danger btn-sm">
-                        <i class="bi bi-trash"></i>
-                    </a> *@
-                    <button 
+                    <button
                         type="button"
                         class="btn btn-danger btn-sm"
                         data-bs-toggle="modal"
@@ -46,6 +40,11 @@
                         data-id="@invoice.Id">
                         <i class="bi bi-trash"></i>
                     </button>
+                    @if (invoice.Status == "Draft") {
+                        <a href="@Url.Action("Edit", "Invoice", new { id = invoice.Id })" class="btn btn-sm btn-warning @(invoice.Status != "Draft" ? "disabled" : "")">
+                            <i class="bi bi-pencil-square"></i>
+                        </a>
+                    }
                 </td>
             </tr>
         }

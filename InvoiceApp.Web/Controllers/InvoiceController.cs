@@ -9,6 +9,7 @@ using InvoiceApp.Application.Invoices.Delete;
 using InvoiceApp.Application.Invoices.Update;
 using InvoiceApp.Web.Services;
 using InvoiceApp.Application.Commons.Interface;
+using InvoiceApp.Domain.Invoices;
 
 namespace InvoiceApp.Web.Controllers;
 
