@@ -4,14 +4,14 @@ using Microsoft.EntityFrameworkCore;
 using System.Linq;
 using System.Linq.Expressions;
 
-namespace InvoiceApp.Infrastructure.Persistence.Repositories;
+namespace InvoiceApp.Infrastructure.Persistence.Repositories.InMemory;
 
-public class InvoiceRepository : IInvoiceRepository
+public class InvoiceInMemoryRepository : IInvoiceRepository
 {
     // public static List<Invoice> invoices = new();
     private readonly InMemoryDbContext _context;
 
-    public InvoiceRepository(InMemoryDbContext context)
+    public InvoiceInMemoryRepository(InMemoryDbContext context)
     {
         _context = context;
     }

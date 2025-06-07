@@ -2,9 +2,9 @@ using InvoiceApp.Application.Commons.Interface;
 using InvoiceApp.Domain.Commons.Models;
 using InvoiceApp.Domain.Products;
 
-namespace InvoiceApp.Infrastructure.Persistence.Repositories;
+namespace InvoiceApp.Infrastructure.Persistence.Repositories.InMemory;
 
-public class ProductRepository : IProductRepository
+public class ProductInMemoryRepository : IProductRepository
 {
     private readonly InMemoryDbContext _context;
 
@@ -12,7 +12,7 @@ public class ProductRepository : IProductRepository
     private static readonly string CacheKey = "products_cache";
     private static readonly TimeSpan CacheDuration = TimeSpan.FromMinutes(30);
 
-    public ProductRepository(InMemoryDbContext context, ICacheService cache)
+    public ProductInMemoryRepository(InMemoryDbContext context, ICacheService cache)
     {
         _context = context;
         _cache = cache;

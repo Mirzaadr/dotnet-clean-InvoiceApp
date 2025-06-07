@@ -21,8 +21,11 @@ if (!app.Environment.IsDevelopment())
     app.UseHsts();
 }
 
-var context = app.Services.GetRequiredService<InMemoryDbContext>();
-SeedData.Seed(context);
+using (var scope = app.Services.CreateScope())
+{
+    var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    SeedData.Seed(context);
+}
 
 app.UseHttpsRedirection();
 app.UseRouting();

@@ -2,16 +2,16 @@ using InvoiceApp.Application.Commons.Interface;
 using InvoiceApp.Domain.Clients;
 using InvoiceApp.Domain.Commons.Models;
 
-namespace InvoiceApp.Infrastructure.Persistence.Repositories;
+namespace InvoiceApp.Infrastructure.Persistence.Repositories.InMemory;
 
-public class ClientRepository : IClientRepository
+public class ClientInMemoryRepository : IClientRepository
 {
     private readonly InMemoryDbContext _context;
     private readonly ICacheService _cache;
     private static readonly string CacheKey = "clients_cache";
     private static readonly TimeSpan CacheDuration = TimeSpan.FromMinutes(30);
 
-    public ClientRepository(InMemoryDbContext context, ICacheService cache)
+    public ClientInMemoryRepository(InMemoryDbContext context, ICacheService cache)
     {
         _context = context;
         _cache = cache;
@@ -53,8 +53,8 @@ public class ClientRepository : IClientRepository
             searchTerm = searchTerm.ToLower();
             clientQuery = clientQuery.Where(i =>
                 i.Name.ToLower().Contains(searchTerm) ||
-                (i.Address != null && i.Address.ToLower().Contains(searchTerm)) ||
-                (i.Email != null && i.Email.ToLower().Contains(searchTerm))
+                i.Address != null && i.Address.ToLower().Contains(searchTerm) ||
+                i.Email != null && i.Email.ToLower().Contains(searchTerm)
             );
         }
 

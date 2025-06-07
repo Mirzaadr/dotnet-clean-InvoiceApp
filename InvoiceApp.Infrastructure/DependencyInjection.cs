@@ -1,16 +1,14 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Configuration;
-// using Microsoft.AspNetCore.Authentication.JwtBearer;
-// using Microsoft.IdentityModel.Tokens;
 using InvoiceApp.Infrastructure.Services;
 using InvoiceApp.Infrastructure.Persistence;
 using InvoiceApp.Domain.Invoices;
-using InvoiceApp.Infrastructure.Persistence.Repositories;
 using InvoiceApp.Domain.Clients;
 using InvoiceApp.Domain.Products;
 using InvoiceApp.Application.Commons.Interface;
-// using Microsoft.Extensions.Options;
-// using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
+using InvoiceApp.Infrastructure.Persistence.Repositories.InMemory;
+using InvoiceApp.Infrastructure.Persistence.Repositories.Db;
 
 namespace InvoiceApp.Infrastructure;
 
@@ -20,26 +18,60 @@ public static class DependencyInjection
         this IServiceCollection services,
         ConfigurationManager configuration)
     {
-        // services.AddDbContext<AppDbContext>(options => 
-        //     options
-        //         .UseNpgsql(configuration.GetConnectionString("Database"))
-        //         .UseSnakeCaseNamingConvention()
-        // );
-        services.AddSingleton<InMemoryDbContext>();
+        // services.AddInMemoryDatabase();
+        services.AddDatabase(configuration);
 
-        // repository
-        services.AddScoped<IInvoiceRepository, InvoiceRepository>();
-        services.AddScoped<IClientRepository, ClientRepository>();
-        services.AddScoped<IProductRepository, ProductRepository>();
+        services.AddServices();
 
+
+        return services;
+    }
+
+    private static IServiceCollection AddServices(
+        this IServiceCollection services
+    )
+    {
         // Services
         services.AddSingleton<IInvoiceNumberGenerator, InvoiceNumberGenerator>();
         services.AddSingleton<IDateTimeProvider, DateTimeProvider>();
 
         services.AddMemoryCache();
         services.AddScoped<ICacheService, MemoryCacheService>();
+        return services;
+    }
 
-        
+    private static IServiceCollection AddDatabase(
+        this IServiceCollection services,
+        ConfigurationManager configuration
+    )
+    {
+        services.AddDbContext<AppDbContext>(options => 
+            options.UseNpgsql(configuration.GetConnectionString("Default")
+                // npgsqlOptions => npgsqlOptions.MigrationsAssembly("InvoiceApp.Web")
+                )
+        );
+        services.AddDbContextFactory<AppDbContext>(options => 
+            options.UseNpgsql(configuration.GetConnectionString("Default")
+        ), ServiceLifetime.Scoped);
+
+
+        // repository
+        services.AddScoped<IInvoiceRepository, InvoiceDbRepository>();
+        services.AddScoped<IClientRepository, ClientDbRepository>();
+        services.AddScoped<IProductRepository, ProductDbRepository>();
+        return services;
+    }
+
+    private static IServiceCollection AddInMemoryDatabase(
+        this IServiceCollection services
+    )
+    {
+        services.AddSingleton<InMemoryDbContext>();
+
+        // repository
+        services.AddScoped<IInvoiceRepository, InvoiceInMemoryRepository>();
+        services.AddScoped<IClientRepository, ClientInMemoryRepository>();
+        services.AddScoped<IProductRepository, ProductInMemoryRepository>();
         return services;
     }
 }
