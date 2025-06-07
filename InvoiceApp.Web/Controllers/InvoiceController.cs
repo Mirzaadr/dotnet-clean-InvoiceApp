@@ -99,6 +99,11 @@ public class InvoiceController : Controller
     if (invoice == null)
       return NotFound();
 
+    if (invoice.Status != InvoiceStatus.Draft.ToString())
+    {
+      return RedirectToAction(nameof(Details), new { id = id });
+    }
+
     var formData = await _formFactory.CreateAsync(invoice);
 
     return View("Edit", formData);
@@ -115,6 +120,13 @@ public class InvoiceController : Controller
 
       if (!ModelState.IsValid)
       {
+          var formData = await _formFactory.CreateAsync(invoice);
+          return View("Edit", formData);
+      }
+
+      if (invoice.Status != InvoiceStatus.Draft.ToString())
+      {
+          ModelState.AddModelError("", "Cannot update sent invoice");
           var formData = await _formFactory.CreateAsync(invoice);
           return View("Edit", formData);
       }
