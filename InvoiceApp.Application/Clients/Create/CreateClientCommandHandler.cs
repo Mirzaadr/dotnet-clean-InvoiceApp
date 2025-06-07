@@ -22,8 +22,8 @@ internal class CreateClientCommandHandler : IRequestHandler<CreateClientCommand>
       command.Address,
       command.Email,
       command.PhoneNumber,
-      DateTime.Now,
-      DateTime.Now
+      null,
+      null
     );
 
     await _clientRepository.AddAsync(newClient);
