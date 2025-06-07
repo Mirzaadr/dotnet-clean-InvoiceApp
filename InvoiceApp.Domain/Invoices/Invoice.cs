@@ -115,15 +115,18 @@ public class Invoice : BaseEntity<InvoiceId>
 
     public void UpdateItems(List<InvoiceItem> updatedItems)
     {
+        if (Status != InvoiceStatus.Draft)
+            throw new InvalidOperationException("Cannot modify a finalized invoice.");
+
         _items.Clear();
         _items.AddRange(updatedItems);
     }
-    
+
     public void UpdateInvoiceDates(DateTime issueDate, DateTime dueDate)
     {
         if (issueDate > dueDate)
             throw new InvalidOperationException("Issue date cannot be later than due date.");
-        
+
         IssueDate = issueDate;
         DueDate = dueDate;
     }

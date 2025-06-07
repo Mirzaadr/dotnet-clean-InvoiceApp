@@ -98,6 +98,10 @@
         </tfoot>
     </table>
 </div>
-
-<a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning">Edit</a>
+@if(Model.Status == "Draft") {
+    <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning">Edit</a>
+}
+@if(Model.Status == "Draft") {
+    <a asp-action="Send" asp-route-id="@Model.Id" class="btn btn-info">Send Invoice</a>
+}
 <a asp-action="Index" class="btn btn-secondary">Back to List</a>
