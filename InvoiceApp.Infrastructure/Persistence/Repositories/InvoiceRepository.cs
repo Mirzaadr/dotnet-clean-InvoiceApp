@@ -44,19 +44,29 @@ public class InvoiceRepository : IInvoiceRepository
     {
         var invoiceQuery = _context.Invoices.AsQueryable();
 
+        // TODO: implement better filtering system
         if (!string.IsNullOrEmpty(searchTerm))
         {
-            searchTerm = searchTerm.ToLower();
-            invoiceQuery = searchTerm switch
+            // Split by comma, trim whitespace, and lowercase
+            var searchTerms = searchTerm
+                .Split(',', StringSplitOptions.RemoveEmptyEntries)
+                .Select(term => term.Trim().ToLower())
+                .ToList();
+
+            // AND-based filtering: all terms must match one of the fields
+            foreach (var term in searchTerms)
             {
-                "draft" => invoiceQuery.Where(i => i.Status == InvoiceStatus.Draft),
-                "sent" => invoiceQuery.Where(i => i.Status == InvoiceStatus.Sent),
-                "paid" => invoiceQuery.Where(i => i.Status == InvoiceStatus.Paid),
-                _ => invoiceQuery.Where(i =>
-                    i.InvoiceNumber.ToLower().Contains(searchTerm) ||
-                    i.ClientName.ToLower().Contains(searchTerm)
-                )
-            };
+                invoiceQuery = term switch
+                {
+                    "draft" => invoiceQuery.Where(i => i.Status == InvoiceStatus.Draft),
+                    "sent" => invoiceQuery.Where(i => i.Status == InvoiceStatus.Sent),
+                    "paid" => invoiceQuery.Where(i => i.Status == InvoiceStatus.Paid),
+                    _ => invoiceQuery.Where(i =>
+                        i.InvoiceNumber.ToLower().Contains(term) ||
+                        i.ClientName.ToLower().Contains(term)
+                    )
+                };
+            }
         }
 
         Expression<Func<Invoice, object>> keySelector = sortColumn?.ToLower() switch
@@ -90,7 +100,7 @@ public class InvoiceRepository : IInvoiceRepository
 
     public async Task<Invoice?> GetByIdAsync(InvoiceId id)
     {
-        var invoice =  _context.Invoices.FirstOrDefault(i => i.Id == id);
+        var invoice = _context.Invoices.FirstOrDefault(i => i.Id == id);
         return await Task.FromResult(invoice);
     }
 
