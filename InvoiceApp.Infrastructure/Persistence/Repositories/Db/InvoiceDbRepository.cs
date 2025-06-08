@@ -49,14 +49,28 @@ public class InvoiceDbRepository : IInvoiceRepository
             
             var invoiceQuery = dbContext.Invoices.AsQueryable();
 
+            // TODO: implement better filtering system
             if (!string.IsNullOrEmpty(searchTerm))
             {
-                searchTerm = searchTerm.ToLower();
-                invoiceQuery = invoiceQuery.Where(i =>
-                    i.InvoiceNumber.ToLower().Contains(searchTerm) ||
-                    i.Status.Value.ToLower().Contains(searchTerm) ||
-                    i.ClientName.ToLower().Contains(searchTerm)
-                );
+                // Split by comma, trim whitespace, and lowercase
+                var searchTerms = searchTerm
+                    .Split(',', StringSplitOptions.RemoveEmptyEntries)
+                    .Select(term => term.Trim().ToLower())
+                    .ToList();
+
+                foreach (var term in searchTerms)
+                {
+                    invoiceQuery = term switch
+                    {
+                        "draft" => invoiceQuery.Where(i => i.Status == InvoiceStatus.Draft),
+                        "sent" => invoiceQuery.Where(i => i.Status == InvoiceStatus.Sent),
+                        "paid" => invoiceQuery.Where(i => i.Status == InvoiceStatus.Paid),
+                        _ => invoiceQuery.Where(i =>
+                            i.InvoiceNumber.ToLower().Contains(term) ||
+                            i.ClientName.ToLower().Contains(term)
+                        )
+                    };
+                }
             }
 
             Expression<Func<Invoice, object>> keySelector = sortColumn?.ToLower() switch
