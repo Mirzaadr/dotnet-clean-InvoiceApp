@@ -34,7 +34,7 @@ public class Client : BaseEntity<ClientId>
       DateTime? updatedDate
     )
     {
-        Name = name;
+        // Name = name;
         Address = address;
         Email = email;
         PhoneNumber = phoneNumber;
