@@ -47,11 +47,16 @@ public class InvoiceInMemoryRepository : IInvoiceRepository
         if (!string.IsNullOrEmpty(searchTerm))
         {
             searchTerm = searchTerm.ToLower();
-            invoiceQuery = invoiceQuery.Where(i =>
-                i.InvoiceNumber.ToLower().Contains(searchTerm) ||
-                i.Status.Value.ToLower().Contains(searchTerm) ||
-                i.ClientName.ToLower().Contains(searchTerm)
-            );
+            invoiceQuery = searchTerm switch
+            {
+                "draft" => invoiceQuery.Where(i => i.Status == InvoiceStatus.Draft),
+                "sent" => invoiceQuery.Where(i => i.Status == InvoiceStatus.Sent),
+                "paid" => invoiceQuery.Where(i => i.Status == InvoiceStatus.Paid),
+                _ => invoiceQuery.Where(i =>
+                    i.InvoiceNumber.ToLower().Contains(searchTerm) ||
+                    i.ClientName.ToLower().Contains(searchTerm)
+                )
+            };
         }
 
         Expression<Func<Invoice, object>> keySelector = sortColumn?.ToLower() switch

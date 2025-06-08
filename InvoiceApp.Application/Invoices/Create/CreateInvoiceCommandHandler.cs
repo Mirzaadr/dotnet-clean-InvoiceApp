@@ -30,8 +30,8 @@ internal class CreateInvoiceCommandHandler : IRequestHandler<CreateInvoiceComman
       invoiceNum: command.InvoiceNumber,
       clientId: client.Id,
       clientName: client.Name,
-      issueDate: command.IssueDate,
-      dueDate: command.DueDate,
+      issueDate: DateTime.SpecifyKind(command.IssueDate, DateTimeKind.Utc),
+      dueDate: DateTime.SpecifyKind(command.DueDate, DateTimeKind.Utc),
       status: InvoiceStatus.Draft,
       items: command.Items.ConvertAll(item => new InvoiceItem(
         id: InvoiceItemId.New(),
