@@ -198,7 +198,8 @@
     @* <button type="button" class="btn btn-secondary" id="addItemBtn">Add Item</button> *@
     <br /><br />
     <button type="submit" class="btn btn-primary">Submit</button>
-    <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+    @* <a asp-action="Index" class="btn btn-secondary">Cancel</a> *@
+    <button type="button" class="btn btn-secondary" onclick="goBackOrDefault()">Cancel</button>
 </form>
 
 <!-- 🔒 Template goes here -->
@@ -223,5 +224,15 @@
         <td><input class="item-total form-control-plaintext" disabled id="item-total"></td>
         <td><button type="button" class="btn btn-danger btn-sm remove-item">Delete</button></td>
     </tr>
+</script>
+
+<script>
+    function goBackOrDefault() {
+        if (document.referrer) {
+            window.location = document.referrer;
+        } else {
+            window.location = '@Url.Action("Index")';
+        }
+    }
 </script>
 
