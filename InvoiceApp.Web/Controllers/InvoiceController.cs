@@ -9,6 +9,7 @@ using InvoiceApp.Application.Invoices.Delete;
 using InvoiceApp.Application.Invoices.Update;
 using InvoiceApp.Web.Services;
 using InvoiceApp.Application.Commons.Interface;
+using InvoiceApp.Domain.Invoices;
 
 namespace InvoiceApp.Web.Controllers;
 
@@ -99,6 +100,11 @@ public class InvoiceController : Controller
     if (invoice == null)
       return NotFound();
 
+    if (invoice.Status != InvoiceStatus.Draft.ToString())
+    {
+      return RedirectToAction(nameof(Details), new { id = id });
+    }
+
     var formData = await _formFactory.CreateAsync(invoice);
 
     return View("Edit", formData);
@@ -119,7 +125,14 @@ public class InvoiceController : Controller
           return View("Edit", formData);
       }
 
-      var command = new UpdateInvoiceCommand(invoice);
+      if (invoice.Status != InvoiceStatus.Draft.ToString())
+      {
+          ModelState.AddModelError("", "Cannot update sent invoice");
+          var formData = await _formFactory.CreateAsync(invoice);
+          return View("Edit", formData);
+      }
+
+      var command = new UpdateInvoiceCommand(invoice.Id, invoice.IssueDate, invoice.DueDate, invoice.Items);
 
       await _mediator.Send(command);
       return RedirectToAction(nameof(Index));

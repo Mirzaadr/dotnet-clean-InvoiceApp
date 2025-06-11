@@ -1,3 +1,4 @@
+using System.ComponentModel.DataAnnotations;
 using InvoiceApp.Application.Commons.Interface;
 using InvoiceApp.Domain.Clients;
 using InvoiceApp.Domain.Invoices;
@@ -14,7 +15,7 @@ internal class CreateInvoiceCommandHandler : IRequestHandler<CreateInvoiceComman
   public CreateInvoiceCommandHandler(IInvoiceRepository invoiceRepository, IClientRepository clientRepository)
   {
       _invoiceRepository = invoiceRepository;
-    _clientRepository = clientRepository;
+      _clientRepository = clientRepository;
   }
 
   public async Task Handle(CreateInvoiceCommand command, CancellationToken cancellationToken)
@@ -22,16 +23,15 @@ internal class CreateInvoiceCommandHandler : IRequestHandler<CreateInvoiceComman
     var client = await _clientRepository.GetByIdAsync(new ClientId(command.ClientId));
     if (client is null)
     {
-        return;
+        throw new ValidationException($"Client with ID {command.ClientId} does not exist.");
     }
     await Task.CompletedTask;
     var invoice = Invoice.Create(
-      // request.clientId,
       invoiceNum: command.InvoiceNumber,
       clientId: client.Id,
       clientName: client.Name,
-      issueDate: command.IssueDate,
-      dueDate: command.DueDate,
+      issueDate: DateTime.SpecifyKind(command.IssueDate, DateTimeKind.Utc),
+      dueDate: DateTime.SpecifyKind(command.DueDate, DateTimeKind.Utc),
       status: InvoiceStatus.Draft,
       items: command.Items.ConvertAll(item => new InvoiceItem(
         id: InvoiceItemId.New(),

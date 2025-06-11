@@ -45,10 +45,9 @@ public class ClientsController : Controller
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Create(ClientDto client)
+    public async Task<IActionResult> Create(CreateClientCommand client)
     {
-        var query = new CreateClientCommand(client);
-        await _mediator.Send(query);
+        await _mediator.Send(client);
         return RedirectToAction(nameof(Index));
     }
 
@@ -64,10 +63,9 @@ public class ClientsController : Controller
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Edit(ClientDto client)
+    public async Task<IActionResult> Edit(UpdateClientCommand client)
     {
-        var query = new UpdateClientCommand(client);
-        await _mediator.Send(query);
+        await _mediator.Send(client);
         // Optionally, you can add a success message or log the action
         await Task.CompletedTask;
         return RedirectToAction("Index");

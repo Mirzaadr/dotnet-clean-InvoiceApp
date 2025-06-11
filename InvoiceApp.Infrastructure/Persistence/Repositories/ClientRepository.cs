@@ -19,32 +19,20 @@ public class ClientRepository : IClientRepository
 
     public Task AddAsync(Client client)
     {
-        var existingClient = _context.Clients.FirstOrDefault(i => i.Id == client.Id);
-        if (existingClient is null)
-        {
-            _context.Add(client);
-        }
-        else
-        {
-            existingClient = client;
-        }
+        _context.Clients.Add(client);
         _context.SaveChanges();
+
+        // Clear cache after adding new client
         _cache.Remove(CacheKey);
         return Task.CompletedTask;
     }
 
     public Task DeleteAsync(Client client)
     {
-        var existingInvoice = _context.Clients.FirstOrDefault(i => i.Id == client.Id);
-        if (existingInvoice is null)
-        {
-            throw new Exception("Invoice not found");
-        }
-        else
-        {
-            _context.Clients.Remove(client);
-        }
+        _context.Clients.Remove(client);
         _context.SaveChanges();
+
+        // Clear cache after deleting client
         _cache.Remove(CacheKey);
         return Task.CompletedTask;
     }

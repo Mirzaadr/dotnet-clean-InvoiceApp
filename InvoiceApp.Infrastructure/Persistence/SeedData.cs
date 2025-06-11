@@ -10,16 +10,16 @@ public static class SeedData
     // Helper function to generate random invoice status (either Pending or Paid)
     private static InvoiceStatus GetRandomStatus()
     {
-        return (RandomNumber(0, 1) == 0)
-          ? InvoiceStatus.Sent
-          : InvoiceStatus.Paid;
-    }
-
-    // Helper function to generate random numbers within a range
-    private static int RandomNumber(int min, int max)
-    {
-        Random random = new Random();
-        return random.Next(min, max);
+        Faker f = new Faker();
+        var status = f.PickRandom(
+            new[]
+            {
+                "Draft",
+                "Sent",
+                "Paid"
+            }
+        );
+        return InvoiceStatus.From(status);
     }
 
     public static void Seed(InMemoryDbContext context)

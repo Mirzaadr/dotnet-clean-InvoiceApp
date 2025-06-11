@@ -15,7 +15,7 @@
     <div class="row g-2 mb-3">
         <div class="col-lg-6">
             <div class="card h-100">
-                <div class="card-header">
+                <div class="card-header fw-bold">
                     Invoice Details
                 </div>
                 <div class="card-body">
@@ -38,13 +38,12 @@
                     <div class="row mb-3">
                         <label class="col-sm-4 col-form-label">Status</label>
                         <div class="col-sm-8">
-                            <select asp-for="Invoice.Status" class="form-select">
+                            <select asp-for="Invoice.Status" class="form-select" disabled>
                                 <option value="">-- Select --</option>
                                 <option>Draft</option>
                                 <option>Sent</option>
                                 <option>Paid</option>
                             </select>
-                            <span asp-validation-for="Invoice.Status" class="text-danger"></span>
                         </div>
                     </div>
 
@@ -67,14 +66,14 @@
         </div>
         <div class="col-lg-6">
             <div class="card h-100">
-                <div class="card-header">
+                <div class="card-header fw-bold">
                     Client Details
                 </div>
                 <div class="card-body">
                     <div class="row mb-3">
                         <label class="col-sm-4 col-form-label" for="ClientId">Client</label>
                         <div class="col-sm-8">
-                            <select id="ClientId" name="Invoice.ClientId" class="client-select form-control" style="width:100%">
+                            <select id="ClientId" name="Invoice.ClientId" class="client-select form-control" style="width:100%" @(isEdit ? "disabled" : "")>
                                 <option></option>
                                 @foreach (var client in clients)
                                 {
@@ -119,77 +118,87 @@
     @* <div class="card-header">
         Invoice Items
     </div> *@
-    <div class="d-flex justify-content-between align-items-center mb-3">
-        <h4 class="h-4">Items</h4>
+    <div class="card mb-4">
+        <div class="card-header d-flex fw-bold justify-content-between align-items-center">
+            <h6 class="fw-bold mb-0">Items</h6>
 
-        <button type="button" class="btn btn-secondary btn-sm" id="add-item">Add Item</button>
-    </div>
-    <table class="table table-bordered" id="itemsTable">
-        <thead>
-            <tr>
-                @* <th>Product ID</th> *@
-                <th>Product</th>
-                <th>Unit Price</th>
-                <th>Quantity</th>
-                <th>Total</th>
-                <th></th>
-            </tr>
-        </thead>
-        <tbody id="invoice-items-body">
-            @for (int i = 0; i < Model.Invoice.Items.Count; i++)
-            {
-                var item = Model.Invoice.Items[i];
-                <tr class="invoice-item-row">
-                    <td>
-                        <select class="form-control product-select" name="Invoice.Items[@i].ProductId" data-index="@i" style="width:100%">
-                            <option></option>
-                            @foreach (var product in products)
-                            {
-                                @if (product.Id == item.ProductId)
-                                {
-                                    <option value="@product.Id" selected>@product.Name</option>
-                                }
-                                else
-                                {
-                                    <option value="@product.Id">@product.Name</option>
-                                }
-                            }
-                        </select>
-                        <span asp-validation-for="Invoice.Items[@i].ProductName" class="text-danger"></span>
-                        <input hidden name="Invoice.Items[@i].ProductName" value="@item.ProductName" class="product-name" >
-                        @if (isEdit)
+            <button type="button" class="btn btn-light btn-sm border-secondary" id="add-item">
+                <i class="bi bi-plus"></i>
+                Add Item
+            </button>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-bordered mb-0" id="itemsTable">
+                    <thead>
+                        <tr>
+                            @* <th>Product ID</th> *@
+                            <th>Product</th>
+                            <th>Unit Price</th>
+                            <th>Quantity</th>
+                            <th>Total</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody id="invoice-items-body">
+                        @for (int i = 0; i < Model.Invoice.Items.Count; i++)
                         {
-                            <input hidden name="Invoice.Items[@i].Id" value="@item.Id">
+                            var item = Model.Invoice.Items[i];
+                            <tr class="invoice-item-row">
+                                <td>
+                                    <select class="form-control product-select" name="Invoice.Items[@i].ProductId" data-index="@i" style="width:100%">
+                                        <option></option>
+                                        @foreach (var product in products)
+                                        {
+                                            @if (product.Id == item.ProductId)
+                                            {
+                                                <option value="@product.Id" selected>@product.Name</option>
+                                            }
+                                            else
+                                            {
+                                                <option value="@product.Id">@product.Name</option>
+                                            }
+                                        }
+                                    </select>
+                                    <span asp-validation-for="Invoice.Items[@i].ProductName" class="text-danger"></span>
+                                    <input hidden name="Invoice.Items[@i].ProductName" value="@item.ProductName" class="product-name" >
+                                    @if (isEdit)
+                                    {
+                                        <input hidden name="Invoice.Items[@i].Id" value="@item.Id">
+                                    }
+                                </td>
+                                <td>
+                                    <input type="text" class="product-price form-control-plaintext" readonly data-unit-price="@(string.Format(CultureInfo.InvariantCulture, "{0}", item.UnitPrice))" value="@string.Format("{0:C2}", item.UnitPrice)">
+                                    <input hidden name="Invoice.Items[@i].UnitPrice" value="@item.UnitPrice.ToString(CultureInfo.InvariantCulture)" class="product-price-value" >
+                                </td>
+                                <td><input type="number" class="quantity-input form-control" name="Invoice.Items[@i].Quantity" value="@item.Quantity" min="1" /></td>
+                                <td><input class="item-total form-control-plaintext" disabled id="item-total" value="@((item.UnitPrice * item.Quantity).ToString("C"))"></td>
+                                <td><button type="button" class="btn btn-danger btn-sm remove-item">Delete</button></td>
+                            </tr>
                         }
-                    </td>
-                    <td>
-                        <input type="text" class="product-price form-control-plaintext" readonly data-unit-price="@(string.Format(CultureInfo.InvariantCulture, "{0}", item.UnitPrice))" value="@string.Format("{0:C2}", item.UnitPrice)">
-                        <input hidden name="Invoice.Items[@i].UnitPrice" value="@item.UnitPrice" class="product-price-value" >
-                    </td>
-                    <td><input type="number" class="quantity-input form-control" name="Invoice.Items[@i].Quantity" value="@item.Quantity" min="1" /></td>
-                    <td><input class="item-total form-control-plaintext" disabled id="item-total" value="@((item.UnitPrice * item.Quantity).ToString("C"))"></td>
-                    <td><button type="button" class="btn btn-danger btn-sm remove-item">Delete</button></td>
-                </tr>
-            }
 
-        </tbody>
-        <tfoot>
-            <tr>
-                <td colspan="3" class="text-end">
-                    <p class="mb-0 py-1">Total:</p>
-                </td>
-                <td colspan="2">
-                    <p id="invoice-total" class="mb-0 py-1">$0.00</p>
-                </td>
-            </tr>
-        </tfoot>
-    </table>
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <td colspan="3" class="text-end">
+                                <p class="mb-0 py-1">Total:</p>
+                            </td>
+                            <td colspan="2">
+                                <p id="invoice-total" class="mb-0 py-1">$0.00</p>
+                            </td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+    </div>
     <span asp-validation-for="Invoice.Items" class="text-danger"></span>
 
     @* <button type="button" class="btn btn-secondary" id="addItemBtn">Add Item</button> *@
     <br /><br />
     <button type="submit" class="btn btn-primary">Submit</button>
-    <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+    @* <a asp-action="Index" class="btn btn-secondary">Cancel</a> *@
+    <button type="button" class="btn btn-secondary" onclick="goBackOrDefault()">Cancel</button>
 </form>
 
 <!-- 🔒 Template goes here -->
@@ -214,5 +223,15 @@
         <td><input class="item-total form-control-plaintext" disabled id="item-total"></td>
         <td><button type="button" class="btn btn-danger btn-sm remove-item">Delete</button></td>
     </tr>
+</script>
+
+<script>
+    function goBackOrDefault() {
+        if (document.referrer) {
+            window.location = document.referrer;
+        } else {
+            window.location = '@Url.Action("Index")';
+        }
+    }
 </script>
 

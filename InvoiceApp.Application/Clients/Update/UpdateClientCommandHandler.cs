@@ -15,11 +15,11 @@ internal class UpdateClientCommandHandler : IRequestHandler<UpdateClientCommand>
   public async Task Handle(UpdateClientCommand command, CancellationToken cancellationToken)
   {
     await _clientRepository.UpdateAsync(new Client(
-      new ClientId(command.client.Id),
-      command.client.Name,
-      command.client.Address,
-      command.client.Email,
-      command.client.PhoneNumber,
+      new ClientId(command.Id),
+      command.Name,
+      command.Address,
+      command.Email,
+      command.PhoneNumber,
       null,
       null
     ));

@@ -20,32 +20,20 @@ public class ProductRepository : IProductRepository
 
     public Task AddAsync(Product product)
     {
-        var existingProduct = _context.Products.FirstOrDefault(i => i.Id == product.Id);
-        if (existingProduct is null)
-        {
-            _context.Add(product);
-        }
-        else
-        {
-            existingProduct = product;
-        }
+        _context.Products.Add(product);
         _context.SaveChanges();
+
+        // Clear cache after adding new product
         _cache.Remove(CacheKey);
         return Task.CompletedTask;
     }
 
     public Task DeleteAsync(Product product)
     {
-        var existingProduct = _context.Products.FirstOrDefault(i => i.Id == product.Id);
-        if (existingProduct is null)
-        {
-            throw new Exception("Product not found");
-        }
-        else
-        {
-            _context.Products.Remove(product);
-        }
+        _context.Products.Remove(product);
         _context.SaveChanges();
+
+        // Clear cache after removing product
         _cache.Remove(CacheKey);
         return Task.CompletedTask;
     }

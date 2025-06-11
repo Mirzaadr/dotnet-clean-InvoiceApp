@@ -6,8 +6,14 @@ public interface IInvoiceRepository
 {
     Task<Invoice?> GetByIdAsync(InvoiceId id);
     Task<Invoice> GetLatestAsync();
-    Task<PagedList<Invoice>> GetAllAsync(int page, int pageSize, string? searchTerm);
+    Task<PagedList<Invoice>> GetAllAsync(
+        int page,
+        int pageSize,
+        string? searchTerm = default,
+        string? sortColumn = default,
+        string? sortOrder = default);
     Task<List<Invoice>> GetAllAsync();
+    Task<double> GetTotalAmountAsync();
     Task AddAsync(Invoice invoice);
     Task UpdateAsync(Invoice invoice);
     Task DeleteAsync(Invoice invoice);

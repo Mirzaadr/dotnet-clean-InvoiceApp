@@ -7,4 +7,5 @@ public class PaginationViewModel
   public int PageSize { get; set; }
   public int TotalItems { get; set; }
   public string? SearchTerm { get; set; }
+  public string? Action { get; set; }
 }
