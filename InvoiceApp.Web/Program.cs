@@ -2,6 +2,7 @@ using InvoiceApp.Application;
 using InvoiceApp.Infrastructure;
 using InvoiceApp.Infrastructure.Persistence;
 using InvoiceApp.Web;
+using Microsoft.AspNetCore.Localization;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -12,6 +13,11 @@ builder.Services
     .AddInfrastructure(builder.Configuration);
 
 var app = builder.Build();
+
+app.UseRequestLocalization(new RequestLocalizationOptions
+{
+    DefaultRequestCulture = new RequestCulture("en-US")
+});
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())

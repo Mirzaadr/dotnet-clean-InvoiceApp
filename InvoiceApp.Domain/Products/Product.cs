@@ -37,7 +37,7 @@ public class Product : BaseEntity<ProductId>
 
     public void UpdateDetails(string name, string? description)
     {
-        Name = name;
+        // Name = name;
         Description = description;
         UpdatedDate = DateTime.UtcNow;
     }

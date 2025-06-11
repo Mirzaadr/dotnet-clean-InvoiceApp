@@ -48,7 +48,7 @@ function setClientSelectOnChange() {
 let itemIndex = $("#invoice-items-body tr").length;
 
 function toCurrencyString(number) {
-  return number.toLocaleString("id-ID", {
+  return number.toLocaleString("en-US", { // use en-US format (dot for decimal)
     style: "currency",
     currency: "IDR",
   });
@@ -137,7 +137,7 @@ function initializeProductSelect(selectElement) {
         .find(".product-price")
         .val(toCurrencyString(data.unitPrice))
         .data("unit-price", data.unitPrice);
-      row.find(".product-price-value").val(data.unitPrice.toLocaleString());
+      row.find(".product-price-value").val(data.unitPrice.toLocaleString("en-US"));
 
       // updateItemTotal(row);
       updateInvoiceTotal();

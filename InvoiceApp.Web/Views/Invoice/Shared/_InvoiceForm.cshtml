@@ -38,13 +38,12 @@
                     <div class="row mb-3">
                         <label class="col-sm-4 col-form-label">Status</label>
                         <div class="col-sm-8">
-                            <select asp-for="Invoice.Status" class="form-select">
+                            <select asp-for="Invoice.Status" class="form-select" disabled>
                                 <option value="">-- Select --</option>
                                 <option>Draft</option>
                                 <option>Sent</option>
                                 <option>Paid</option>
                             </select>
-                            <span asp-validation-for="Invoice.Status" class="text-danger"></span>
                         </div>
                     </div>
 
@@ -74,7 +73,7 @@
                     <div class="row mb-3">
                         <label class="col-sm-4 col-form-label" for="ClientId">Client</label>
                         <div class="col-sm-8">
-                            <select id="ClientId" name="Invoice.ClientId" class="client-select form-control" style="width:100%">
+                            <select id="ClientId" name="Invoice.ClientId" class="client-select form-control" style="width:100%" @(isEdit ? "disabled" : "")>
                                 <option></option>
                                 @foreach (var client in clients)
                                 {
@@ -170,7 +169,7 @@
                                 </td>
                                 <td>
                                     <input type="text" class="product-price form-control-plaintext" readonly data-unit-price="@(string.Format(CultureInfo.InvariantCulture, "{0}", item.UnitPrice))" value="@string.Format("{0:C2}", item.UnitPrice)">
-                                    <input hidden name="Invoice.Items[@i].UnitPrice" value="@item.UnitPrice" class="product-price-value" >
+                                    <input hidden name="Invoice.Items[@i].UnitPrice" value="@item.UnitPrice.ToString(CultureInfo.InvariantCulture)" class="product-price-value" >
                                 </td>
                                 <td><input type="number" class="quantity-input form-control" name="Invoice.Items[@i].Quantity" value="@item.Quantity" min="1" /></td>
                                 <td><input class="item-total form-control-plaintext" disabled id="item-total" value="@((item.UnitPrice * item.Quantity).ToString("C"))"></td>
