@@ -1,3 +1,4 @@
+@using System.Globalization;
 @model ProductDto
 @{
     var isEdit = Model.Id != Guid.Empty;
@@ -40,7 +41,8 @@
                     <div class="row">
                         <label class="col-sm-4 col-form-label">Price</label>
                         <div class="col-sm-8">
-                            <input class="form-control" asp-for="Price">
+                            <input id="Price" hidden type="hidden" asp-for="Price">
+                            <input id="PriceFormatted" class="form-control" value="@Model.Price.ToString("C2")">
                             <span asp-validation-for="Price" class="text-danger"></span>
                         </div>
                     </div>
@@ -52,3 +54,9 @@
     <button type="submit" class="btn btn-primary me-2">Save</button>
     <a asp-action="Index" class="btn btn-outline-primary" role="button">Back</a>
 </form>
+
+@* 
+the script can't use JQuery because it hasn't loaded yet. 
+to implement JQuery, load the script inside the section in the actual page
+*@
+<script type="text/javascript" src="~/js/product-form.js"></script>
