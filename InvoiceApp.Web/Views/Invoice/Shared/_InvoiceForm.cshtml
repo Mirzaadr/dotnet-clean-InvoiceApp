@@ -169,7 +169,7 @@
                                 </td>
                                 <td>
                                     <input type="text" class="product-price form-control-plaintext" readonly data-unit-price="@(string.Format(CultureInfo.InvariantCulture, "{0}", item.UnitPrice))" value="@string.Format("{0:C2}", item.UnitPrice)">
-                                    <input hidden name="Invoice.Items[@i].UnitPrice" value="@item.UnitPrice" class="product-price-value" >
+                                    <input hidden name="Invoice.Items[@i].UnitPrice" value="@item.UnitPrice.ToString(CultureInfo.InvariantCulture)" class="product-price-value" >
                                 </td>
                                 <td><input type="number" class="quantity-input form-control" name="Invoice.Items[@i].Quantity" value="@item.Quantity" min="1" /></td>
                                 <td><input class="item-total form-control-plaintext" disabled id="item-total" value="@((item.UnitPrice * item.Quantity).ToString("C"))"></td>
