@@ -20,7 +20,7 @@ internal class CreateInvoiceCommandHandler : IRequestHandler<CreateInvoiceComman
 
   public async Task Handle(CreateInvoiceCommand command, CancellationToken cancellationToken)
   {
-    var client = await _clientRepository.GetByIdAsync(new ClientId(command.ClientId));
+    var client = await _clientRepository.GetByIdAsync(ClientId.FromGuid(command.ClientId));
     if (client is null)
     {
         throw new ValidationException($"Client with ID {command.ClientId} does not exist.");
@@ -33,14 +33,11 @@ internal class CreateInvoiceCommandHandler : IRequestHandler<CreateInvoiceComman
       issueDate: DateTime.SpecifyKind(command.IssueDate, DateTimeKind.Utc),
       dueDate: DateTime.SpecifyKind(command.DueDate, DateTimeKind.Utc),
       status: InvoiceStatus.Draft,
-      items: command.Items.ConvertAll(item => new InvoiceItem(
-        id: InvoiceItemId.New(),
-        productId: new ProductId(item.ProductId),
+      items: command.Items.ConvertAll(item => InvoiceItem.Create(
+        productId: ProductId.FromGuid(item.ProductId),
         productName: item.ProductName,
         quantity: item.Quantity,
-        unitPrice: item.UnitPrice,
-        createdTime: null,
-        updatedTime: null
+        unitPrice: item.UnitPrice
       ))
     );
 

@@ -14,14 +14,18 @@ internal class UpdateProductCommandHandler : IRequestHandler<UpdateProductComman
 
   public async Task Handle(UpdateProductCommand command, CancellationToken cancellationToken)
   {
-    await _productRepository.UpdateAsync(new Product(
-      new ProductId(command.Id),
+    var product = await _productRepository.GetByIdAsync(ProductId.FromGuid(command.Id));
+    if (product is null)
+    {
+      throw new Exception("Not Found");
+    }
+
+    product.UpdatePrice(command.Price);
+    
+    product.UpdateDetails(
       command.Name,
-      command.Price,
-      command.Description,
-      null,
-      null
-    ));
-    await Task.CompletedTask;
+      command.Description
+    );
+    await _productRepository.UpdateAsync(product);
   }
 }

@@ -8,7 +8,7 @@ public class Product : BaseEntity<ProductId>
     public string? Description { get; private set; }
     public double UnitPrice { get; private set; }
 
-    public Product(
+    private Product(
       ProductId id,
       string name,
       double unitPrice,
@@ -20,6 +20,22 @@ public class Product : BaseEntity<ProductId>
         Name = name;
         UnitPrice = unitPrice;
         Description = description;
+    }
+
+    public static Product Create(
+        string name,
+        double unitPrice,
+        string? description
+    )
+    {
+        return new(
+            ProductId.New(),
+            name,
+            unitPrice,
+            description,
+            DateTime.UtcNow,
+            DateTime.UtcNow
+        );
     }
 
     public void UpdatePrice(double newPrice)

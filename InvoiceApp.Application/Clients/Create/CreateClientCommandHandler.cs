@@ -16,14 +16,11 @@ internal class CreateClientCommandHandler : IRequestHandler<CreateClientCommand>
   {
     // TODO: check by name in database
     await Task.CompletedTask;
-    var newClient = new Client(
-      ClientId.New(),
+    var newClient = Client.Create(
       command.Name,
       command.Address,
       command.Email,
-      command.PhoneNumber,
-      null,
-      null
+      command.PhoneNumber
     );
 
     await _clientRepository.AddAsync(newClient);

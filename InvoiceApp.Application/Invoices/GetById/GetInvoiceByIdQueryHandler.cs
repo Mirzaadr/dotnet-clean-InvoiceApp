@@ -19,7 +19,7 @@ internal sealed class GetInvoiceQueryHandler : IRequestHandler<GetInvoiceByIdQue
 
   public async Task<InvoiceDTO> Handle(GetInvoiceByIdQuery query, CancellationToken cancellationToken)
   {
-    var invoice = await _invoiceRepository.GetByIdAsync(new InvoiceId(query.InvoiceId));
+    var invoice = await _invoiceRepository.GetByIdAsync(InvoiceId.FromGuid(query.InvoiceId));
     // throw new NotImplementedException();
     if (invoice is null)
     {

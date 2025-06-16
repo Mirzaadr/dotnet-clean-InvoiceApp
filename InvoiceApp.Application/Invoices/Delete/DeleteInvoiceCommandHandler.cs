@@ -14,7 +14,7 @@ internal class DeleteInvoiceCommandHandler : IRequestHandler<DeleteInvoiceComman
 
   public async Task Handle(DeleteInvoiceCommand command, CancellationToken cancellationToken)
   {
-      var invoice = await _invoiceRepository.GetByIdAsync(new InvoiceId(command.InvoiceId));
+      var invoice = await _invoiceRepository.GetByIdAsync(InvoiceId.FromGuid(command.InvoiceId));
       if (invoice is null) throw new Exception("Invoice not found");
 
       await _invoiceRepository.DeleteAsync(invoice);

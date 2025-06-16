@@ -10,7 +10,7 @@ public class Client : BaseEntity<ClientId>
     public string? Email { get; private set; }
     public string? PhoneNumber { get; private set; }
 
-    public Client(
+    private Client(
       ClientId id,
       string name,
       string? address,
@@ -26,20 +26,38 @@ public class Client : BaseEntity<ClientId>
         PhoneNumber = phoneNumber;
     }
     
-    public void Update(
+    public static Client Create(
       string name,
       string? address,
       string? email,
-      string? phoneNumber,
-      DateTime? updatedDate
+      string? phoneNumber
     )
     {
-        // Name = name;
-        Address = address;
-        Email = email;
-        PhoneNumber = phoneNumber;
-        UpdatedDate = updatedDate ?? DateTime.UtcNow;
+      return new(
+        ClientId.New(),
+        name,
+        address,
+        email,
+        phoneNumber,
+        DateTime.UtcNow,
+        DateTime.UtcNow
+      );
     }
+    
+  public void Update(
+    string name,
+    string? address,
+    string? email,
+    string? phoneNumber,
+    DateTime? updatedDate
+  )
+  {
+    // Name = name;
+    Address = address;
+    Email = email;
+    PhoneNumber = phoneNumber;
+    UpdatedDate = updatedDate ?? DateTime.UtcNow;
+  }
 
     private Client()
   { }

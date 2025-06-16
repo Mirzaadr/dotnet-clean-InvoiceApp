@@ -16,7 +16,7 @@ internal sealed class GetClientByIdQueryHandler : IRequestHandler<GetClientByIdQ
 
     public async Task<ClientDto> Handle(GetClientByIdQuery request, CancellationToken cancellationToken)
     {
-        var client = await _clientRepository.GetByIdAsync(new ClientId(request.ClientId));
+        var client = await _clientRepository.GetByIdAsync(ClientId.FromGuid(request.ClientId));
         if (client is null)
         {
             throw new Exception("client not found");
