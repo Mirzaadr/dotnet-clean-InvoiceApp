@@ -21,7 +21,7 @@ internal class UpdateInvoiceCommandHandler : IRequestHandler<UpdateInvoiceComman
   {
     await Task.CompletedTask;
 
-    var currentInvoice = await _invoiceRepository.GetByIdAsync(new InvoiceId(command.InvoiceId));
+    var currentInvoice = await _invoiceRepository.GetByIdAsync(InvoiceId.FromGuid(command.InvoiceId));
     if (currentInvoice is null) throw new Exception("Invoice not found");
 
     if (currentInvoice.Status != InvoiceStatus.Draft)
@@ -33,8 +33,8 @@ internal class UpdateInvoiceCommandHandler : IRequestHandler<UpdateInvoiceComman
     );
 
     currentInvoice.UpdateItems(command.Items.ConvertAll(item => new InvoiceItem(
-      id: item.Id == Guid.Empty ? InvoiceItemId.New() : new InvoiceItemId(item.Id),
-      productId: new ProductId(item.ProductId),
+      id: item.Id == Guid.Empty ? InvoiceItemId.New() : InvoiceItemId.FromGuid(item.Id),
+      productId: ProductId.FromGuid(item.ProductId),
       productName: item.ProductName,
       quantity: item.Quantity,
       unitPrice: item.UnitPrice,

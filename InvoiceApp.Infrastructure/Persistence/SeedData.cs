@@ -29,24 +29,18 @@ public static class SeedData
         int invoiceCount = 100;
 
         var clientFaker = new Faker<Client>()
-            .CustomInstantiator(f => new Client(
-                ClientId.New(),
+            .CustomInstantiator(f => Client.Create(
                 f.Company.CompanyName(),
                 f.Address.FullAddress(),
                 f.Internet.Email(),
-                f.Phone.PhoneNumber(),
-                DateTime.Now,
-                DateTime.Now
+                f.Phone.PhoneNumber()
             ));
 
         var productFaker = new Faker<Product>()
-            .CustomInstantiator(f => new Product(
-                ProductId.New(),
+            .CustomInstantiator(f => Product.Create(
                 f.Commerce.ProductName(),
                 f.Random.Double(10, 500),
-                f.Commerce.ProductDescription(),
-                DateTime.Now,
-                DateTime.Now
+                f.Commerce.ProductDescription()
             ));
 
         var clients = clientFaker.Generate(clientCount);
@@ -70,29 +64,23 @@ public static class SeedData
             {
                 var product = products[random.Next(products.Count)];
                 var quantity = random.Next(1, 5);
-                items.Add(new InvoiceItem(
-                    InvoiceItemId.New(),
+                items.Add(InvoiceItem.Create(
                     product.Id,
                     product.Name,
                     product.UnitPrice,
-                    quantity,
-                    DateTime.Now,
-                    DateTime.Now
+                    quantity
                 ));
             }
 
             var client = clients[random.Next(clients.Count)];
-            var invoice = new Invoice(
-                InvoiceId.New(),
+            var invoice = Invoice.Create(
                 client.Id,
                 client.Name,
                 $"INV-{invoiceNumberSeed + i}-2025",
                 DateTime.Today.AddDays(-random.Next(30)),
                 DateTime.Now.AddDays(random.Next(30)),
                 GetRandomStatus(),
-                items,
-                DateTime.Now,
-                DateTime.Now
+                items
             );
 
             context.Invoices.Add(invoice);

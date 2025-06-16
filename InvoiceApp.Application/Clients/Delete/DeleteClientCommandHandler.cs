@@ -14,7 +14,7 @@ internal class DeleteClientCommandHandler : IRequestHandler<DeleteClientCommand>
 
   public async Task Handle(DeleteClientCommand command, CancellationToken cancellationToken)
   {
-      var client = await _clientRepository.GetByIdAsync(new ClientId(command.ClientId));
+      var client = await _clientRepository.GetByIdAsync(ClientId.FromGuid(command.ClientId));
       if (client is null) throw new Exception("Client not found");
 
       await _clientRepository.DeleteAsync(client);

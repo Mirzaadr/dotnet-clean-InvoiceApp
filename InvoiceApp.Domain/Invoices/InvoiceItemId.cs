@@ -6,12 +6,14 @@ public class InvoiceItemId : ValueObject
 {
     public Guid Value { get; }
 
-    public InvoiceItemId(Guid value)
+    private InvoiceItemId(Guid value)
     {
         Value = value;
     }
 
     public static InvoiceItemId New() => new(Guid.NewGuid());
+
+    public static InvoiceItemId FromGuid(Guid guid) => new(guid);
 
     protected override IEnumerable<object> GetEqualityComponents()
     {
