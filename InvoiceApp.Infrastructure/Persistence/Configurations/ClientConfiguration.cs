@@ -17,7 +17,7 @@ internal class ClientConfiguration : IEntityTypeConfiguration<Client>
             .HasColumnName("id")
             .HasConversion(
                 id => id.Value,
-                value => new ClientId(value)
+                value => ClientId.FromGuid(value)
             );
 
         builder.Property(c => c.Name)

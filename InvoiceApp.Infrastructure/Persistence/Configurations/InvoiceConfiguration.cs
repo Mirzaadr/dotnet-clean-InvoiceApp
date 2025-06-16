@@ -28,14 +28,14 @@ internal class InvoiceConfiguration : IEntityTypeConfiguration<Invoice>
                 .HasColumnName("id")
                 .HasConversion(
                     id => id.Value,
-                    value => new InvoiceItemId(value)
+                    value => InvoiceItemId.FromGuid(value)
                 );
             ib.Property(i => i.ProductId)
                 .IsRequired()
                 .HasColumnName("product_id")
                 .HasConversion(
                     id => id.Value,
-                    value => new ProductId(value)
+                    value => ProductId.FromGuid(value)
                 );
             
             ib.Property(i => i.ProductName)
@@ -69,7 +69,7 @@ internal class InvoiceConfiguration : IEntityTypeConfiguration<Invoice>
             .HasColumnName("id")
             .HasConversion(
                 id => id.Value,
-                value => new InvoiceId(value)
+                value => InvoiceId.FromGuid(value)
             );
 
         builder.Property(i => i.InvoiceNumber)
@@ -83,7 +83,7 @@ internal class InvoiceConfiguration : IEntityTypeConfiguration<Invoice>
             .HasColumnName("client_id")
             .HasConversion(
                 id => id.Value,
-                value => new ClientId(value)
+                value => ClientId.FromGuid(value)
             );
         builder.Property(i => i.ClientName)
             .IsRequired()

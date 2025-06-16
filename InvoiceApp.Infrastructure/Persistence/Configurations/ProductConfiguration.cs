@@ -17,7 +17,7 @@ internal class ProductConfiguration : IEntityTypeConfiguration<Product>
             .HasColumnName("id")
             .HasConversion(
                 id => id.Value,
-                value => new ProductId(value)
+                value => ProductId.FromGuid(value)
             );
 
         builder.Property(c => c.Name)

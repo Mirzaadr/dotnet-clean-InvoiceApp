@@ -99,14 +99,11 @@ public static class SeedData
         if (!context.Clients.Any())
         {
             var clientFaker = new Faker<Client>()
-            .CustomInstantiator(f => new Client(
-                ClientId.New(),
+            .CustomInstantiator(f => Client.Create(
                 f.Company.CompanyName(),
                 f.Address.FullAddress(),
                 f.Internet.Email(),
-                f.Phone.PhoneNumber("(###) ###-####"),
-                DateTime.UtcNow,
-                DateTime.UtcNow
+                f.Phone.PhoneNumber("(###) ###-####")
             ));
 
             clients = clientFaker.Generate(clientCount);
@@ -120,13 +117,10 @@ public static class SeedData
         if (!context.Products.Any())
         {
             var productFaker = new Faker<Product>()
-            .CustomInstantiator(f => new Product(
-                ProductId.New(),
+            .CustomInstantiator(f => Product.Create(
                 f.Commerce.ProductName(),
                 f.Random.Double(10, 500),
-                f.Commerce.ProductDescription(),
-                DateTime.UtcNow,
-                DateTime.UtcNow
+                f.Commerce.ProductDescription()
             ));
             products = productFaker.Generate(productCount);
             context.Products.AddRange(products);
@@ -162,17 +156,14 @@ public static class SeedData
                 }
 
                 var client = clients[random.Next(clients.Count)];
-                var invoice = new Invoice(
-                    InvoiceId.New(),
+                var invoice = Invoice.Create(
                     client.Id,
                     client.Name,
                     $"INV-{invoiceNumberSeed + i}-2025",
                     DateTime.UtcNow.AddDays(-random.Next(30)),
                     DateTime.UtcNow.AddDays(random.Next(30)),
                     GetRandomStatus(),
-                    items,
-                    DateTime.UtcNow,
-                    DateTime.UtcNow
+                    items
                 );
 
                 context.Invoices.Add(invoice);
