@@ -26,6 +26,7 @@ public static class DependencyInjection
         //         .UseSnakeCaseNamingConvention()
         // );
         services.AddSingleton<InMemoryDbContext>();
+        services.AddScoped<IUnitOfWork, UnitOfWork>();
 
         // repository
         services.AddScoped<IInvoiceRepository, InvoiceRepository>();

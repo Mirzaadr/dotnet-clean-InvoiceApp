@@ -10,17 +10,17 @@ internal class UpdateInvoiceCommandHandler : IRequestHandler<UpdateInvoiceComman
 {
     private readonly IClientRepository _clientRepository;
     private readonly IInvoiceRepository _invoiceRepository;
+    private readonly IUnitOfWork _unitOfWork;
 
-  public UpdateInvoiceCommandHandler(IInvoiceRepository invoiceRepository, IClientRepository clientRepository)
+  public UpdateInvoiceCommandHandler(IInvoiceRepository invoiceRepository, IClientRepository clientRepository, IUnitOfWork unitOfWork)
   {
       _invoiceRepository = invoiceRepository;
       _clientRepository = clientRepository;
+      _unitOfWork = unitOfWork;
   }
 
   public async Task Handle(UpdateInvoiceCommand command, CancellationToken cancellationToken)
   {
-    await Task.CompletedTask;
-
     var currentInvoice = await _invoiceRepository.GetByIdAsync(InvoiceId.FromGuid(command.InvoiceId));
     if (currentInvoice is null) throw new Exception("Invoice not found");
 
@@ -43,5 +43,6 @@ internal class UpdateInvoiceCommandHandler : IRequestHandler<UpdateInvoiceComman
     )));
 
     await _invoiceRepository.UpdateAsync(currentInvoice);
+    await _unitOfWork.SaveChangesAsync(cancellationToken);
   }
 }

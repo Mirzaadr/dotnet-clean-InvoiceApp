@@ -6,10 +6,12 @@ namespace InvoiceApp.Application.Products.Create;
 internal class CreateProductCommandHandler : IRequestHandler<CreateProductCommand>
 {
     private readonly IProductRepository _productRepository;
+    private readonly IUnitOfWork _unitOfWork;
 
-  public CreateProductCommandHandler(IProductRepository productRepository)
+  public CreateProductCommandHandler(IProductRepository productRepository, IUnitOfWork unitOfWork)
   {
       _productRepository = productRepository;
+      _unitOfWork = unitOfWork;
   }
 
   public async Task Handle(CreateProductCommand command, CancellationToken cancellationToken)
@@ -23,5 +25,6 @@ internal class CreateProductCommandHandler : IRequestHandler<CreateProductComman
     );
 
     await _productRepository.AddAsync(newProduct);
+    await _unitOfWork.SaveChangesAsync(cancellationToken);
   }
 }

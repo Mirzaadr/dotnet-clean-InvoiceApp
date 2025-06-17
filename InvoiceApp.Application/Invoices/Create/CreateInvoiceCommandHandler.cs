@@ -10,13 +10,15 @@ namespace InvoiceApp.Application.Invoices.Create;
 internal class CreateInvoiceCommandHandler : IRequestHandler<CreateInvoiceCommand>
 {
     private readonly IClientRepository _clientRepository;
-  private readonly IInvoiceRepository _invoiceRepository;
+    private readonly IInvoiceRepository _invoiceRepository;
+    private readonly IUnitOfWork _unitOfWork;
 
-  public CreateInvoiceCommandHandler(IInvoiceRepository invoiceRepository, IClientRepository clientRepository)
-  {
+    public CreateInvoiceCommandHandler(IInvoiceRepository invoiceRepository, IClientRepository clientRepository, IUnitOfWork unitOfWork)
+    {
       _invoiceRepository = invoiceRepository;
       _clientRepository = clientRepository;
-  }
+      _unitOfWork = unitOfWork;
+    }
 
   public async Task Handle(CreateInvoiceCommand command, CancellationToken cancellationToken)
   {
@@ -42,5 +44,6 @@ internal class CreateInvoiceCommandHandler : IRequestHandler<CreateInvoiceComman
     );
 
     await _invoiceRepository.AddAsync(invoice);
+    await _unitOfWork.SaveChangesAsync(cancellationToken);
   }
 }
