@@ -20,20 +20,18 @@ public class ClientInMemoryRepository : IClientRepository
     public Task AddAsync(Client client)
     {
         _context.Clients.Add(client);
-        _context.SaveChanges();
-
         // Clear cache after adding new client
         _cache.Remove(CacheKey);
+
         return Task.CompletedTask;
     }
 
     public Task DeleteAsync(Client client)
     {
         _context.Clients.Remove(client);
-        _context.SaveChanges();
-
         // Clear cache after deleting client
         _cache.Remove(CacheKey);
+
         return Task.CompletedTask;
     }
 
@@ -69,20 +67,7 @@ public class ClientInMemoryRepository : IClientRepository
 
     public async Task UpdateAsync(Client client)
     {
-        var existingClients = _context.Clients.FirstOrDefault(i => i.Id == client.Id);
-        if (existingClients is null)
-        {
-            throw new KeyNotFoundException($"Client with ID {client.Id.ToString()} not found.");
-        }
-
-        existingClients.Update(
-            client.Name,
-            client.Address,
-            client.Email,
-            client.PhoneNumber,
-            null
-        );
-        _context.SaveChanges();
+        // _context.Clients.Update(client);
         _cache.Remove(CacheKey);
         await Task.CompletedTask;
     }

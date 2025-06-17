@@ -21,7 +21,6 @@ public class ProductInMemoryRepository : IProductRepository
     public Task AddAsync(Product product)
     {
         _context.Products.Add(product);
-        _context.SaveChanges();
 
         // Clear cache after adding new product
         _cache.Remove(CacheKey);
@@ -31,7 +30,6 @@ public class ProductInMemoryRepository : IProductRepository
     public Task DeleteAsync(Product product)
     {
         _context.Products.Remove(product);
-        _context.SaveChanges();
 
         // Clear cache after removing product
         _cache.Remove(CacheKey);
@@ -76,19 +74,6 @@ public class ProductInMemoryRepository : IProductRepository
 
     public Task UpdateAsync(Product product)
     {
-        var existingProduct = _context.Products.FirstOrDefault(i => i.Id == product.Id);
-        if (existingProduct is null)
-        {
-            throw new KeyNotFoundException($"Product with ID {product.Id} not found.");
-        }
-
-        if (existingProduct.UnitPrice != product.UnitPrice)
-        {
-            existingProduct.UpdatePrice(product.UnitPrice);
-        }
-
-        existingProduct.UpdateDetails(product.Name, product.Description);
-        _context.SaveChanges();
         _cache.Remove(CacheKey);
 
         return Task.CompletedTask;

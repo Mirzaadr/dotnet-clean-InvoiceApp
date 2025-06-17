@@ -6,10 +6,12 @@ namespace InvoiceApp.Application.Clients.Update;
 internal class UpdateClientCommandHandler : IRequestHandler<UpdateClientCommand>
 {
     private readonly IClientRepository _clientRepository;
+    private readonly IUnitOfWork _unitOfWork;
 
-  public UpdateClientCommandHandler(IClientRepository clientRepository)
+  public UpdateClientCommandHandler(IClientRepository clientRepository, IUnitOfWork unitOfWork)
   {
       _clientRepository = clientRepository;
+      _unitOfWork = unitOfWork;
   }
 
   public async Task Handle(UpdateClientCommand command, CancellationToken cancellationToken)
@@ -29,6 +31,7 @@ internal class UpdateClientCommandHandler : IRequestHandler<UpdateClientCommand>
     );
 
     await _clientRepository.UpdateAsync(client);
-    await Task.CompletedTask;
+    await _unitOfWork.SaveChangesAsync(cancellationToken);
+
   }
 }

@@ -6,10 +6,12 @@ namespace InvoiceApp.Application.Products.Update;
 internal class UpdateProductCommandHandler : IRequestHandler<UpdateProductCommand>
 {
     private readonly IProductRepository _productRepository;
+    private readonly IUnitOfWork _unitOfWork;
 
-  public UpdateProductCommandHandler(IProductRepository productRepository)
+  public UpdateProductCommandHandler(IProductRepository productRepository, IUnitOfWork unitOfWork)
   {
       _productRepository = productRepository;
+      _unitOfWork = unitOfWork;
   }
 
   public async Task Handle(UpdateProductCommand command, CancellationToken cancellationToken)
@@ -27,5 +29,6 @@ internal class UpdateProductCommandHandler : IRequestHandler<UpdateProductComman
       command.Description
     );
     await _productRepository.UpdateAsync(product);
+    await _unitOfWork.SaveChangesAsync(cancellationToken);
   }
 }
