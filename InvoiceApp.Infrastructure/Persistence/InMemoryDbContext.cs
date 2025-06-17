@@ -4,7 +4,7 @@ using InvoiceApp.Domain.Products;
 
 namespace InvoiceApp.Infrastructure.Persistence;
 
-public class InMemoryDbContext
+public class InMemoryDbContext : IUnitOfWork
 {
     public List<Invoice> Invoices { get; set; } 
     public List<Product> Products { get; set; } 
@@ -33,6 +33,13 @@ public class InMemoryDbContext
         }
     }
 
-    public void SaveChanges()
-    {}
+    public Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+    {
+        return Task.FromResult(0);
+    }
+
+    public int SaveChanges()
+    {
+        return 0;
+    }
 }
