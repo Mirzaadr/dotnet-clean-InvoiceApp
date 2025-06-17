@@ -45,14 +45,10 @@ public static class DependencyInjection
         ConfigurationManager configuration
     )
     {
-        services.AddDbContext<AppDbContext>(options => 
-            options.UseNpgsql(configuration.GetConnectionString("Default")
-                // npgsqlOptions => npgsqlOptions.MigrationsAssembly("InvoiceApp.Web")
-                )
-        );
         services.AddDbContextFactory<AppDbContext>(options => 
             options.UseNpgsql(configuration.GetConnectionString("Default")
         ), ServiceLifetime.Scoped);
+        services.AddScoped<IUnitOfWork, UnitOfWork>();
 
 
         // repository

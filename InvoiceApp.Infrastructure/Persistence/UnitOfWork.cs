@@ -3,9 +3,9 @@ namespace InvoiceApp.Infrastructure.Persistence;
 
 public class UnitOfWork : IUnitOfWork, IDisposable
 {
-    private readonly InMemoryDbContext _context;
+    private readonly AppDbContext _context;
 
-    public UnitOfWork(InMemoryDbContext context)
+    public UnitOfWork(AppDbContext context)
     {
         _context = context;
     }
@@ -13,11 +13,11 @@ public class UnitOfWork : IUnitOfWork, IDisposable
     public Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
     {
         // In-memory context does not require saving changes
-        return Task.FromResult(0);
+        return _context.SaveChangesAsync(cancellationToken);
     }
 
     public void Dispose()
     {
-        // _context?.Dispose();
+        _context?.Dispose();
     }
 }

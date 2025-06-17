@@ -7,38 +7,34 @@ namespace InvoiceApp.Infrastructure.Persistence.Repositories.Db;
 
 public class ProductDbRepository : IProductRepository
 {
+    private readonly AppDbContext _context;
     private readonly IDbContextFactory<AppDbContext> _dbContextFactory;
 
     private readonly ICacheService _cache;
     private static readonly string CacheKey = "products_cache";
     private static readonly TimeSpan CacheDuration = TimeSpan.FromMinutes(30);
 
-    public ProductDbRepository(ICacheService cache, IDbContextFactory<AppDbContext> dbContextFactory)
+    public ProductDbRepository(ICacheService cache, AppDbContext context, IDbContextFactory<AppDbContext> dbContextFactory)
     {
         _cache = cache;
+        _context = context;
         _dbContextFactory = dbContextFactory;
     }
 
     public async Task AddAsync(Product product)
     {
-        using (var dbContext = await _dbContextFactory.CreateDbContextAsync())
-        {
-            dbContext.Products.Add(product);
-            await dbContext.SaveChangesAsync();
-        }
+        await _context.Products.AddAsync(product);
         // Clear cache after adding new product
         _cache.Remove(CacheKey);
     }
 
-    public async Task DeleteAsync(Product product)
+    public Task DeleteAsync(Product product)
     {
-        using (var dbContext = await _dbContextFactory.CreateDbContextAsync())
-        {
-            dbContext.Products.Remove(product);
-            await dbContext.SaveChangesAsync();
-        }
+        _context.Products.Remove(product);
         // Clear cache after removing product
         _cache.Remove(CacheKey);
+
+        return Task.CompletedTask;
     }
 
     public async Task<List<Product>> GetAllAsync()
@@ -56,7 +52,7 @@ public class ProductDbRepository : IProductRepository
     {
         using (var dbContext = await _dbContextFactory.CreateDbContextAsync())
         {
-            
+
             var productQuery = dbContext.Products.AsQueryable();
 
             if (!string.IsNullOrEmpty(searchTerm))
@@ -74,40 +70,23 @@ public class ProductDbRepository : IProductRepository
 
     public async Task<Product?> GetByIdAsync(ProductId id)
     {
-        using (var dbContext = await _dbContextFactory.CreateDbContextAsync())
-        {
-            var product = dbContext.Products.FirstOrDefault(i => i.Id == id);
-            return product;
-        }
+        var product = await _context.Products.FirstOrDefaultAsync(i => i.Id == id);
+        return product;
     }
 
     public async Task<List<Product>> GetByIdsAsync(IEnumerable<ProductId> ids)
     {
         using (var dbContext = await _dbContextFactory.CreateDbContextAsync())
         {
-            var products = dbContext.Products.Where(i => ids.Contains(i.Id)).ToList();
+            var products = await dbContext.Products.Where(i => ids.Contains(i.Id)).ToListAsync();
             return products;
         }
     }
 
-    public async Task UpdateAsync(Product product)
+    public Task UpdateAsync(Product product)
     {
-        using (var dbContext = await _dbContextFactory.CreateDbContextAsync())
-        {
-            var existingProduct = dbContext.Products.FirstOrDefault(i => i.Id == product.Id);
-            if (existingProduct is null)
-            {
-                throw new KeyNotFoundException($"Product with ID {product.Id} not found.");
-            }
-
-            if (existingProduct.UnitPrice != product.UnitPrice)
-            {
-                existingProduct.UpdatePrice(product.UnitPrice);
-            }
-
-            existingProduct.UpdateDetails(product.Name, product.Description);
-            dbContext.SaveChanges();
-            _cache.Remove(CacheKey);
-        }
+        _context.Set<Product>().Update(product);
+        _cache.Remove(CacheKey);
+        return Task.CompletedTask;
     }
 }

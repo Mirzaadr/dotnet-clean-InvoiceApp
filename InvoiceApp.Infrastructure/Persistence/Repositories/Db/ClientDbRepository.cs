@@ -7,52 +7,48 @@ namespace InvoiceApp.Infrastructure.Persistence.Repositories.Db;
 
 public class ClientDbRepository : IClientRepository
 {
-    // private readonly AppDbContext _context;
+    private readonly AppDbContext _context;
     private readonly IDbContextFactory<AppDbContext> _dbContextFactory;
     private readonly ICacheService _cache;
     private static readonly string CacheKey = "clients_cache";
     private static readonly TimeSpan CacheDuration = TimeSpan.FromMinutes(30);
 
-    public ClientDbRepository(ICacheService cache, IDbContextFactory<AppDbContext> dbContextFactory)
+    public ClientDbRepository(ICacheService cache, AppDbContext context, IDbContextFactory<AppDbContext> dbContextFactory)
     {
-        // _context = context;
+        _context = context;
         _cache = cache;
         _dbContextFactory = dbContextFactory;
     }
 
     public async Task AddAsync(Client client)
     {
-        using (var dbContext = await _dbContextFactory.CreateDbContextAsync())
-        {
-            dbContext.Clients.Add(client);
-            await dbContext.SaveChangesAsync();
+        await _context.Clients.AddAsync(client);
+        // await _context.SaveChangesAsync();
 
-            // Clear cache after adding new client
-            _cache.Remove(CacheKey);
-            // return Task.CompletedTask;
-        }
+        // Clear cache after adding new client
+        _cache.Remove(CacheKey);
+        // return Task.CompletedTask;
     }
 
-    public async Task DeleteAsync(Client client)
+    public Task DeleteAsync(Client client)
     {
-        using (var dbContext = await _dbContextFactory.CreateDbContextAsync())
-        {
-            dbContext.Clients.Remove(client);
-            await dbContext.SaveChangesAsync();
+        _context.Clients.Remove(client);
+        // await _context.SaveChangesAsync();
 
-            // Clear cache after deleting client
-            _cache.Remove(CacheKey);
-            // return Task.CompletedTask;
-        }
+        // Clear cache after deleting client
+        _cache.Remove(CacheKey);
+        return Task.CompletedTask;
     }
 
     public async Task<List<Client>> GetAllAsync() {
         using (var dbContext = await _dbContextFactory.CreateDbContextAsync())
         {
+            // Use the dbContext to access the database
+            // This is useful if you want to ensure that the context is disposed of properly
+            // and avoid issues with long-lived contexts in a web application.
             var clients = await _cache.GetOrCreateAsync(
                 CacheKey, 
                 async () => await dbContext.Clients.ToListAsync(), CacheDuration);
-            // var clients = await _context.Clients.ToListAsync();
             return clients;
         }
     }
@@ -61,7 +57,7 @@ public class ClientDbRepository : IClientRepository
     {
         using (var dbContext = await _dbContextFactory.CreateDbContextAsync())
         {
-            
+
             var clientQuery = dbContext.Clients.AsQueryable();
 
             if (!string.IsNullOrEmpty(searchTerm))
@@ -80,34 +76,14 @@ public class ClientDbRepository : IClientRepository
     
     public async Task<Client?> GetByIdAsync(ClientId id)
     {
-        using (var dbContext = await _dbContextFactory.CreateDbContextAsync())
-        {
-            var client = dbContext.Clients.FirstOrDefault(i => i.Id == id);
-            return await Task.FromResult(client);
-        }
+        var client = _context.Clients.FirstOrDefault(i => i.Id == id);
+        return await Task.FromResult(client);
     }
 
     public async Task UpdateAsync(Client client)
     {
-        using (var dbContext = await _dbContextFactory.CreateDbContextAsync())
-        {
-            
-            var existingClients = dbContext.Clients.FirstOrDefault(i => i.Id == client.Id);
-            if (existingClients is null)
-            {
-                throw new KeyNotFoundException($"Client with ID {client.Id.ToString()} not found.");
-            }
-
-            existingClients.Update(
-                client.Name,
-                client.Address,
-                client.Email,
-                client.PhoneNumber,
-                null
-            );
-            await dbContext.SaveChangesAsync();
-            _cache.Remove(CacheKey);
-            await Task.CompletedTask;
-        }
+        _context.Set<Client>().Update(client);
+        _cache.Remove(CacheKey);
+        await Task.CompletedTask;
     }
 }

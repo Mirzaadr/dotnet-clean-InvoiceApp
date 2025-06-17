@@ -8,32 +8,24 @@ namespace InvoiceApp.Infrastructure.Persistence.Repositories.Db;
 
 public class InvoiceDbRepository : IInvoiceRepository
 {
-    // public static List<Invoice> invoices = new();
-    // private readonly AppDbContext _context;
+    private readonly AppDbContext _context;
     private readonly IDbContextFactory<AppDbContext> _dbContextFactory;
 
-    public InvoiceDbRepository(IDbContextFactory<AppDbContext> dbContextFactory)
+    public InvoiceDbRepository(IDbContextFactory<AppDbContext> dbContextFactory,  AppDbContext context)
     {
-        // _context = context;
+        _context = context;
         _dbContextFactory = dbContextFactory;
     }
 
     public async Task AddAsync(Invoice invoice)
     {
-        using (var dbContext = await _dbContextFactory.CreateDbContextAsync())
-        {
-            dbContext.Invoices.Add(invoice);
-            dbContext.SaveChanges();
-        }
+        await _context.Invoices.AddAsync(invoice);
     }
 
-    public async Task DeleteAsync(Invoice invoice)
+    public Task DeleteAsync(Invoice invoice)
     {
-        using (var dbContext = await _dbContextFactory.CreateDbContextAsync())
-        {
-            dbContext.Invoices.Remove(invoice);
-            dbContext.SaveChanges();
-        }
+        _context.Invoices.Remove(invoice);
+        return Task.CompletedTask;
     }
 
     public async Task<PagedList<Invoice>> GetAllAsync(
@@ -46,7 +38,7 @@ public class InvoiceDbRepository : IInvoiceRepository
     {
         using (var dbContext = await _dbContextFactory.CreateDbContextAsync())
         {
-            
+
             var invoiceQuery = dbContext.Invoices.AsQueryable();
 
             // TODO: implement better filtering system
@@ -108,19 +100,16 @@ public class InvoiceDbRepository : IInvoiceRepository
 
     public async Task<Invoice?> GetByIdAsync(InvoiceId id)
     {
-        using (var dbContext = await _dbContextFactory.CreateDbContextAsync())
-        {
-            var invoice =  dbContext.Invoices.FirstOrDefault(i => i.Id == id);
-            return await Task.FromResult(invoice);
-        }
+        var invoice =  await _context.Invoices.FirstOrDefaultAsync(i => i.Id == id);
+        return invoice;
+
     }
 
     public async Task<Invoice> GetLatestAsync()
     {
         using (var dbContext = await _dbContextFactory.CreateDbContextAsync())
         {
-            var invoice = dbContext.Invoices.OrderByDescending(i => i.CreatedDate).First();
-            return await Task.FromResult(invoice);
+            return await dbContext.Invoices.OrderByDescending(i => i.CreatedDate).FirstAsync();
         }
     }
 
@@ -135,20 +124,11 @@ public class InvoiceDbRepository : IInvoiceRepository
         }
     }
 
-    public async Task UpdateAsync(Invoice invoice)
+    public Task UpdateAsync(Invoice invoice)
     {
-        using (var dbContext = await _dbContextFactory.CreateDbContextAsync())
-        {
-            var currentInvoice = dbContext.Invoices.FirstOrDefault(i => i.Id == invoice.Id);
-            if (currentInvoice is null)
-                throw new Exception("Invoice not found");
-            currentInvoice.UpdateInvoiceDates(invoice.IssueDate, invoice.DueDate);
-            currentInvoice.UpdateClient(invoice.ClientId.Value, invoice.ClientName ?? currentInvoice.ClientName);
-            currentInvoice.UpdateItems(invoice.Items.ToList());
-
-            dbContext.SaveChanges();
-            // return Task.CompletedTask;
-        }
+        _context.Set<Invoice>().Update(invoice);
+        // await _context.SaveChangesAsync();
+        return Task.CompletedTask;
     }
 
 }
