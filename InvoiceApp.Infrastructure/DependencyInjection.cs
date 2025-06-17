@@ -48,7 +48,8 @@ public static class DependencyInjection
         services.AddDbContextFactory<AppDbContext>(options => 
             options.UseNpgsql(configuration.GetConnectionString("Default")
         ), ServiceLifetime.Scoped);
-        services.AddScoped<IUnitOfWork, UnitOfWork>();
+        services.AddScoped<IUnitOfWork>(sp =>
+            sp.GetRequiredService<AppDbContext>());
 
 
         // repository
@@ -63,7 +64,8 @@ public static class DependencyInjection
     )
     {
         services.AddSingleton<InMemoryDbContext>();
-        services.AddScoped<IUnitOfWork, UnitOfWork>();
+        services.AddScoped<IUnitOfWork>(sp =>
+            sp.GetRequiredService<InMemoryDbContext>());
 
         // repository
         services.AddScoped<IInvoiceRepository, InvoiceInMemoryRepository>();
