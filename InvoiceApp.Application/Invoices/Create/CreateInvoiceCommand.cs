@@ -7,7 +7,8 @@ public record CreateInvoiceCommand(
     string InvoiceNumber,
     DateTime IssueDate,
     DateTime DueDate,
-    List<InvoiceItemCommand> Items
+    List<InvoiceItemCommand> Items,
+    bool IsSend = false
 ) : IRequest;
 
 public record InvoiceItemCommand(

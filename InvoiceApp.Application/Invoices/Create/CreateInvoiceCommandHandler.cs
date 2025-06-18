@@ -34,7 +34,7 @@ internal class CreateInvoiceCommandHandler : IRequestHandler<CreateInvoiceComman
       clientName: client.Name,
       issueDate: DateTime.SpecifyKind(command.IssueDate, DateTimeKind.Utc),
       dueDate: DateTime.SpecifyKind(command.DueDate, DateTimeKind.Utc),
-      status: InvoiceStatus.Draft,
+      status: command.IsSend ? InvoiceStatus.Sent : InvoiceStatus.Draft,
       items: command.Items.ConvertAll(item => InvoiceItem.Create(
         productId: ProductId.FromGuid(item.ProductId),
         productName: item.ProductName,
@@ -44,6 +44,12 @@ internal class CreateInvoiceCommandHandler : IRequestHandler<CreateInvoiceComman
     );
 
     await _invoiceRepository.AddAsync(invoice);
+
+    if (command.IsSend)
+    {
+      // invoice.MarkAsSent();
+      // handle sending logic here, e.g., sending an email or notification
+    }
     await _unitOfWork.SaveChangesAsync(cancellationToken);
   }
 }

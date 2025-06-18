@@ -98,10 +98,15 @@
         </tfoot>
     </table>
 </div>
-@if(Model.Status == "Draft") {
-    <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning">Edit</a>
-}
-@if(Model.Status == "Draft") {
-    <a asp-action="Send" asp-route-id="@Model.Id" class="btn btn-info">Send Invoice</a>
-}
-<a asp-action="Index" class="btn btn-secondary">Back to List</a>
+<div class="d-flex gap-2 align-items-center mt-4">
+    @if(Model.Status == "Draft") {
+        <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning">Edit</a>
+    }
+    @if(Model.Status == "Draft") {
+        <form asp-action="SendInvoice" method="post">
+            <input type="hidden" asp-for="Id" />
+            <button type="submit" class="btn btn-info">Send Invoice</button>
+        </form>
+    }
+    <a asp-action="Index" class="btn btn-secondary">Back to List</a>
+</div>

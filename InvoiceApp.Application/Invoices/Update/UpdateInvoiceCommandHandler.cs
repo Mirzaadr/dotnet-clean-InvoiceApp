@@ -42,6 +42,14 @@ internal class UpdateInvoiceCommandHandler : IRequestHandler<UpdateInvoiceComman
       updatedTime: item.UpdatedDate
     )));
 
+    if (command.IsSend)
+    {
+      var client = await _clientRepository.GetByIdAsync(currentInvoice.ClientId);
+      if (client is null) throw new Exception("Client not found");
+
+      currentInvoice.MarkAsSent();
+    }
+
     await _invoiceRepository.UpdateAsync(currentInvoice);
     await _unitOfWork.SaveChangesAsync(cancellationToken);
   }
