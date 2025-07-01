@@ -9,6 +9,7 @@ using InvoiceApp.Infrastructure.Persistence.Repositories;
 using InvoiceApp.Domain.Clients;
 using InvoiceApp.Domain.Products;
 using InvoiceApp.Application.Commons.Interface;
+using InvoiceApp.Infrastructure.DomainEvents;
 // using Microsoft.Extensions.Options;
 // using Microsoft.EntityFrameworkCore;
 
@@ -41,6 +42,7 @@ public static class DependencyInjection
         services.AddMemoryCache();
         services.AddScoped<ICacheService, MemoryCacheService>();
 
+        services.AddTransient<IDomainEventsDispatcher, DomainEventsDispatcher>();
         
         return services;
     }

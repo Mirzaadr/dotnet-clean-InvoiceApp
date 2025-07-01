@@ -24,6 +24,8 @@ internal class SendInvoiceCommandHandler : IRequestHandler<SendInvoiceCommand>
     }
     invoice.MarkAsSent();
 
+    invoice.Raise(new InvoiceSentEvent(invoice.Id, "", invoice.ClientName, invoice.InvoiceNumber));
+
     // save
     await _unitOfWork.SaveChangesAsync(cancellationToken);
     return;
