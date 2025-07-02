@@ -108,5 +108,11 @@
             <button type="submit" class="btn btn-info">Send Invoice</button>
         </form>
     }
+    @if(Model.Status == "Sent") {
+        <form asp-action="ConfirmPayment" method="post">
+            <input type="hidden" asp-for="Id" />
+            <button type="submit" class="btn btn-info">Mark as Paid</button>
+        </form>
+    }
     <a asp-action="Index" class="btn btn-secondary">Back to List</a>
 </div>

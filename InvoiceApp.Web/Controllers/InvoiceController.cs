@@ -11,6 +11,7 @@ using InvoiceApp.Web.Services;
 using InvoiceApp.Application.Commons.Interface;
 using InvoiceApp.Domain.Invoices;
 using InvoiceApp.Application.Invoices.Send;
+using InvoiceApp.Application.Invoices.MarkAsPaid;
 
 namespace InvoiceApp.Web.Controllers;
 
@@ -152,6 +153,14 @@ public class InvoiceController : Controller
   public async Task<IActionResult> SendInvoice(Guid id)
   {
     await _mediator.Send(new SendInvoiceCommand(id));
+    return RedirectToAction(nameof(Index));
+  }
+
+  [HttpPost]
+  [ValidateAntiForgeryToken]
+  public async Task<IActionResult> ConfirmPayment(Guid id)
+  {
+    await _mediator.Send(new MarkAsPaidInvoiceCommand(id));
     return RedirectToAction(nameof(Index));
   }
 
