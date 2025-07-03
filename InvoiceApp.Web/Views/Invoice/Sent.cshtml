@@ -1,0 +1,43 @@
+@using InvoiceApp.Domain.Commons.Models
+@using InvoiceApp.Web.Models.ViewModels
+@model PagedList<InvoiceDTO>
+@{
+    ViewData["Title"] = "Sent Invoices";
+    var currentPage = Model.Page;
+    var pageSize = Model.PageSize;
+
+    int totalItems = Model.TotalCount;
+
+    int totalPages = (int)Math.Ceiling((double)totalItems / pageSize);
+    string search = ViewBag.SearchTerm ?? "";
+}
+
+<div class="text-start mb-5">
+    <h1 class="display-6">@ViewData["Title"]</h1>
+</div>
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <!-- Left: Add Button -->
+    <div>
+    </div>
+
+    <!-- Right: Search Form -->
+    @await Component.InvokeAsync("SearchForm", new SearchFormViewModel {
+        SearchTerm = search,
+        Action = "Sent"
+    })
+</div>
+
+<partial name="./Shared/_InvoiceTable" model="@Model.Items" />
+
+
+@await Component.InvokeAsync("Pagination", new PaginationViewModel {
+    CurrentPage = currentPage,
+    PageSize = pageSize,
+    TotalItems = totalItems,
+    TotalPages = totalPages,
+    SearchTerm = search,
+    Action = "Sent"
+})
+
+
