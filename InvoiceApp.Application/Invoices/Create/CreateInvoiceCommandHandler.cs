@@ -1,5 +1,4 @@
 using System.ComponentModel.DataAnnotations;
-using InvoiceApp.Application.Commons.Interface;
 using InvoiceApp.Domain.Clients;
 using InvoiceApp.Domain.Invoices;
 using InvoiceApp.Domain.Products;
@@ -49,6 +48,7 @@ internal class CreateInvoiceCommandHandler : IRequestHandler<CreateInvoiceComman
     {
       // invoice.MarkAsSent();
       // handle sending logic here, e.g., sending an email or notification
+      invoice.Raise(new InvoiceSentEvent(invoice.Id, client.Email ?? "", invoice.ClientName, invoice.InvoiceNumber));
     }
     await _unitOfWork.SaveChangesAsync(cancellationToken);
   }

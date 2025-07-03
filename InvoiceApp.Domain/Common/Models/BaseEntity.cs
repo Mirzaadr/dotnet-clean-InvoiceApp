@@ -1,3 +1,5 @@
+using InvoiceApp.Domain.Commons.Interfaces;
+
 namespace InvoiceApp.Domain.Commons.Models;
 
 public class BaseEntity<TId> : IEquatable<BaseEntity<TId>>
@@ -43,4 +45,10 @@ public class BaseEntity<TId> : IEquatable<BaseEntity<TId>>
     protected BaseEntity()
     {}
     #pragma warning disable CS8618
+
+    private readonly List<IDomainEvent> _domainEvents = new();
+    public IReadOnlyCollection<IDomainEvent> DomainEvents => _domainEvents.AsReadOnly();
+
+    public void Raise(IDomainEvent domainEvent) => _domainEvents.Add(domainEvent);
+    public void ClearDomainEvents() => _domainEvents.Clear();
 }

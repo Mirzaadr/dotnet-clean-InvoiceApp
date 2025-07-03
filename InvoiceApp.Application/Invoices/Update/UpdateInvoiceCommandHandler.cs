@@ -48,6 +48,9 @@ internal class UpdateInvoiceCommandHandler : IRequestHandler<UpdateInvoiceComman
       if (client is null) throw new Exception("Client not found");
 
       currentInvoice.MarkAsSent();
+
+      currentInvoice.Raise(new InvoiceSentEvent(currentInvoice.Id, client.Email ?? "", currentInvoice.ClientName, currentInvoice.InvoiceNumber));
+
     }
 
     await _invoiceRepository.UpdateAsync(currentInvoice);
