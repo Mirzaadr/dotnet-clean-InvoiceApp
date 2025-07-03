@@ -100,12 +100,12 @@
 </div>
 <div class="d-flex gap-2 align-items-center mt-4">
     @if(Model.Status == "Draft") {
-        <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning">Edit</a>
+        <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-sm btn-warning">Edit</a>
     }
     @if(Model.Status == "Draft") {
         <form asp-action="SendInvoice" method="post">
             <input type="hidden" asp-for="Id" />
-            <button type="submit" class="btn btn-info">Send Invoice</button>
+            <button type="submit" class="btn btn-sm btn-info">Send Invoice</button>
         </form>
     }
     @if(Model.Status != "Draft") {
@@ -114,8 +114,21 @@
     @if(Model.Status == "Sent") {
         <form asp-action="ConfirmPayment" method="post">
             <input type="hidden" asp-for="Id" />
-            <button type="submit" class="btn btn-info">Mark as Paid</button>
+            <button type="submit" class="btn btn-sm btn-info">Mark as Paid</button>
         </form>
     }
-    <a asp-action="Index" class="btn btn-secondary">Back to List</a>
+    <button type="button" class="btn btn-sm btn-secondary" onclick="goBackOrDefault()">Back to List</button>
 </div>
+
+<script>
+    function goBackOrDefault() {
+        const referrer = document.referrer;
+        const currentUrl = window.location.href;
+
+        if (referrer && referrer !== currentUrl) {
+            window.location = referrer;
+        } else {
+            window.location = '@Url.Action("Index")';
+        }
+    }
+</script>

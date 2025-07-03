@@ -230,8 +230,11 @@
 
 <script>
     function goBackOrDefault() {
-        if (document.referrer) {
-            window.location = document.referrer;
+        const referrer = document.referrer;
+        const currentUrl = window.location.href;
+
+        if (referrer && referrer !== currentUrl) {
+            window.location = referrer;
         } else {
             window.location = '@Url.Action("Index")';
         }
