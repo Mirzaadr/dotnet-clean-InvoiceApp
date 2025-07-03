@@ -178,6 +178,27 @@ public class InvoiceController : Controller
     await _mediator.Send(new DeleteInvoiceCommand(id));
     return RedirectToAction(nameof(Index));
   }
+  
+  // [HttpGet("Download")]
+  public async Task<IActionResult> Download(Guid id)
+  {
+    var invoice = await _mediator.Send(new GetInvoiceByIdQuery(id));
+    if (invoice == null || invoice.Status == InvoiceStatus.Draft.ToString())
+    {
+      return NotFound();
+    }
+
+    var storageService = HttpContext.RequestServices.GetRequiredService<IStorageService>();
+    var pdfBytes = await storageService.GetFileAsync($"{invoice.Id}.pdf");
+    if (pdfBytes == null)
+    {
+      var pdfService = HttpContext.RequestServices.GetRequiredService<IPdfService>();
+      pdfBytes = pdfService.GenerateInvoicePdf(invoice);
+      await storageService.SaveFileAsync(invoice.Id.ToString(), pdfBytes);
+    }
+    
+    return File(pdfBytes, "application/pdf", $"Invoice_{invoice.InvoiceNumber}.pdf");
+  }
 
   private void ValidateItems(InvoiceDTO invoice)
   {
