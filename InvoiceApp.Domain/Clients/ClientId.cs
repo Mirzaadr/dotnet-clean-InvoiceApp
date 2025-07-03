@@ -6,9 +6,10 @@ public sealed class ClientId : ValueObject
 {
     public Guid Value { get; }
 
-    public ClientId(Guid value) => Value = value;
+    private ClientId(Guid value) => Value = value;
 
     public static ClientId New() => new(Guid.NewGuid());
+    public static ClientId FromGuid(Guid guid) => new(guid);
 
     protected override IEnumerable<object> GetEqualityComponents()
     {

@@ -196,9 +196,12 @@
 
     @* <button type="button" class="btn btn-secondary" id="addItemBtn">Add Item</button> *@
     <br /><br />
-    <button type="submit" class="btn btn-primary">Submit</button>
-    @* <a asp-action="Index" class="btn btn-secondary">Cancel</a> *@
-    <button type="button" class="btn btn-secondary" onclick="goBackOrDefault()">Cancel</button>
+    <div class="d-flex gap-2 align-items-center mt-4">
+        <button type="submit" class="btn btn-primary" name="Command" value="save">Save</button>
+        <button type="submit" class="btn btn-primary btn-info" name="Command" value="send">Save and send</button>
+        @* <a asp-action="Index" class="btn btn-secondary">Cancel</a> *@
+        <button type="button" class="btn btn-secondary" onclick="goBackOrDefault()">Cancel</button>
+    </div>
 </form>
 
 <!-- 🔒 Template goes here -->
@@ -227,8 +230,11 @@
 
 <script>
     function goBackOrDefault() {
-        if (document.referrer) {
-            window.location = document.referrer;
+        const referrer = document.referrer;
+        const currentUrl = window.location.href;
+
+        if (referrer && referrer !== currentUrl) {
+            window.location = referrer;
         } else {
             window.location = '@Url.Action("Index")';
         }

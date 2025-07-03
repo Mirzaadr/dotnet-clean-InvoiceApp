@@ -10,18 +10,18 @@ internal class UpdateInvoiceCommandHandler : IRequestHandler<UpdateInvoiceComman
 {
     private readonly IClientRepository _clientRepository;
     private readonly IInvoiceRepository _invoiceRepository;
+    private readonly IUnitOfWork _unitOfWork;
 
-  public UpdateInvoiceCommandHandler(IInvoiceRepository invoiceRepository, IClientRepository clientRepository)
+  public UpdateInvoiceCommandHandler(IInvoiceRepository invoiceRepository, IClientRepository clientRepository, IUnitOfWork unitOfWork)
   {
       _invoiceRepository = invoiceRepository;
       _clientRepository = clientRepository;
+      _unitOfWork = unitOfWork;
   }
 
   public async Task Handle(UpdateInvoiceCommand command, CancellationToken cancellationToken)
   {
-    await Task.CompletedTask;
-
-    var currentInvoice = await _invoiceRepository.GetByIdAsync(new InvoiceId(command.InvoiceId));
+    var currentInvoice = await _invoiceRepository.GetByIdAsync(InvoiceId.FromGuid(command.InvoiceId));
     if (currentInvoice is null) throw new Exception("Invoice not found");
 
     if (currentInvoice.Status != InvoiceStatus.Draft)
@@ -33,8 +33,8 @@ internal class UpdateInvoiceCommandHandler : IRequestHandler<UpdateInvoiceComman
     );
 
     currentInvoice.UpdateItems(command.Items.ConvertAll(item => new InvoiceItem(
-      id: item.Id == Guid.Empty ? InvoiceItemId.New() : new InvoiceItemId(item.Id),
-      productId: new ProductId(item.ProductId),
+      id: item.Id == Guid.Empty ? InvoiceItemId.New() : InvoiceItemId.FromGuid(item.Id),
+      productId: ProductId.FromGuid(item.ProductId),
       productName: item.ProductName,
       quantity: item.Quantity,
       unitPrice: item.UnitPrice,
@@ -42,6 +42,18 @@ internal class UpdateInvoiceCommandHandler : IRequestHandler<UpdateInvoiceComman
       updatedTime: item.UpdatedDate
     )));
 
+    if (command.IsSend)
+    {
+      var client = await _clientRepository.GetByIdAsync(currentInvoice.ClientId);
+      if (client is null) throw new Exception("Client not found");
+
+      currentInvoice.MarkAsSent();
+
+      currentInvoice.Raise(new InvoiceSentEvent(currentInvoice.Id, client.Email ?? "", currentInvoice.ClientName, currentInvoice.InvoiceNumber));
+
+    }
+
     await _invoiceRepository.UpdateAsync(currentInvoice);
+    await _unitOfWork.SaveChangesAsync(cancellationToken);
   }
 }

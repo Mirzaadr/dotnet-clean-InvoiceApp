@@ -12,13 +12,12 @@ public class Invoice : BaseEntity<InvoiceId>
     public DateTime IssueDate { get; private set; }
     public DateTime DueDate { get; private set; }
     public InvoiceStatus Status { get; private set; }
-    // public double TotalAmount { get; private set; }
     private readonly List<InvoiceItem> _items = new();
     public IReadOnlyList<InvoiceItem> Items => _items.AsReadOnly();
 
     public double TotalAmount => _items.Sum(i => i.TotalPrice);
 
-    public Invoice(
+    private Invoice(
       InvoiceId id,
       ClientId clientId,
       string? clientName,
@@ -26,7 +25,6 @@ public class Invoice : BaseEntity<InvoiceId>
       DateTime issueDate,
       DateTime dueDate,
       InvoiceStatus status,
-    //   double total,
       List<InvoiceItem> listItems,
       DateTime createdDate,
       DateTime updatedDate
@@ -39,18 +37,15 @@ public class Invoice : BaseEntity<InvoiceId>
         DueDate = dueDate;
         Status = status;
         _items = listItems;
-        // TotalAmount = total;
     }
 
     public static Invoice Create(
-      // Guid id,
       ClientId clientId,
       string? clientName,
       string invoiceNum,
       DateTime issueDate,
       DateTime dueDate,
       InvoiceStatus status,
-      // double total,
       List<InvoiceItem> items
     )
     {
@@ -74,17 +69,23 @@ public class Invoice : BaseEntity<InvoiceId>
         if (Status != InvoiceStatus.Draft)
             throw new InvalidOperationException("Cannot modify a finalized invoice.");
 
-        var item = new InvoiceItem(
-            InvoiceItemId.New(),
+        var item = InvoiceItem.Create(
             product.Id,
             product.Name,
             product.UnitPrice,
-            quantity,
-            null,
-            null
+            quantity
         );
 
         _items.Add(item);
+    }
+
+    public void UpdateItems(List<InvoiceItem> updatedItems)
+    {
+        if (Status != InvoiceStatus.Draft)
+            throw new InvalidOperationException("Cannot modify a finalized invoice.");
+
+        _items.Clear();
+        _items.AddRange(updatedItems);
     }
 
     public double GetSubtotal() => _items.Sum(i => i.TotalPrice);
@@ -105,17 +106,8 @@ public class Invoice : BaseEntity<InvoiceId>
 
     public void UpdateClient(Guid clientId, string clientName)
     {
-        ClientId = new ClientId(clientId);
+        ClientId = ClientId.FromGuid(clientId);
         ClientName = clientName;
-    }
-
-    public void UpdateItems(List<InvoiceItem> updatedItems)
-    {
-        if (Status != InvoiceStatus.Draft)
-            throw new InvalidOperationException("Cannot modify a finalized invoice.");
-
-        _items.Clear();
-        _items.AddRange(updatedItems);
     }
 
     public void UpdateInvoiceDates(DateTime issueDate, DateTime dueDate)

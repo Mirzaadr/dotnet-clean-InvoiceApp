@@ -6,9 +6,11 @@ public class ProductId : ValueObject
 {
     public Guid Value { get; }
 
-    public ProductId(Guid value) => Value = value;
+    private ProductId(Guid value) => Value = value;
 
     public static ProductId New() => new(Guid.NewGuid());
+    
+    public static ProductId FromGuid(Guid guid) => new(guid);
 
     protected override IEnumerable<object> GetEqualityComponents()
     {

@@ -26,4 +26,22 @@ public class InvoiceItem : BaseEntity<InvoiceItemId>
         UnitPrice = unitPrice;
         Quantity = quantity;
     }
+
+    public static InvoiceItem Create(
+      ProductId productId,
+      string productName,
+      double unitPrice,
+      int quantity
+    )
+    {
+      return new(
+        InvoiceItemId.New(),
+        productId,
+        productName,
+        unitPrice,
+        quantity,
+        DateTime.UtcNow,
+        DateTime.UtcNow
+      );
+    }
 }

@@ -1,5 +1,4 @@
 using System.ComponentModel.DataAnnotations;
-using InvoiceApp.Application.Commons.Interface;
 using InvoiceApp.Domain.Clients;
 using InvoiceApp.Domain.Invoices;
 using InvoiceApp.Domain.Products;
@@ -10,17 +9,19 @@ namespace InvoiceApp.Application.Invoices.Create;
 internal class CreateInvoiceCommandHandler : IRequestHandler<CreateInvoiceCommand>
 {
     private readonly IClientRepository _clientRepository;
-  private readonly IInvoiceRepository _invoiceRepository;
+    private readonly IInvoiceRepository _invoiceRepository;
+    private readonly IUnitOfWork _unitOfWork;
 
-  public CreateInvoiceCommandHandler(IInvoiceRepository invoiceRepository, IClientRepository clientRepository)
-  {
+    public CreateInvoiceCommandHandler(IInvoiceRepository invoiceRepository, IClientRepository clientRepository, IUnitOfWork unitOfWork)
+    {
       _invoiceRepository = invoiceRepository;
       _clientRepository = clientRepository;
-  }
+      _unitOfWork = unitOfWork;
+    }
 
   public async Task Handle(CreateInvoiceCommand command, CancellationToken cancellationToken)
   {
-    var client = await _clientRepository.GetByIdAsync(new ClientId(command.ClientId));
+    var client = await _clientRepository.GetByIdAsync(ClientId.FromGuid(command.ClientId));
     if (client is null)
     {
         throw new ValidationException($"Client with ID {command.ClientId} does not exist.");
@@ -32,18 +33,23 @@ internal class CreateInvoiceCommandHandler : IRequestHandler<CreateInvoiceComman
       clientName: client.Name,
       issueDate: DateTime.SpecifyKind(command.IssueDate, DateTimeKind.Utc),
       dueDate: DateTime.SpecifyKind(command.DueDate, DateTimeKind.Utc),
-      status: InvoiceStatus.Draft,
-      items: command.Items.ConvertAll(item => new InvoiceItem(
-        id: InvoiceItemId.New(),
-        productId: new ProductId(item.ProductId),
+      status: command.IsSend ? InvoiceStatus.Sent : InvoiceStatus.Draft,
+      items: command.Items.ConvertAll(item => InvoiceItem.Create(
+        productId: ProductId.FromGuid(item.ProductId),
         productName: item.ProductName,
         quantity: item.Quantity,
-        unitPrice: item.UnitPrice,
-        createdTime: null,
-        updatedTime: null
+        unitPrice: item.UnitPrice
       ))
     );
 
     await _invoiceRepository.AddAsync(invoice);
+
+    if (command.IsSend)
+    {
+      // invoice.MarkAsSent();
+      // handle sending logic here, e.g., sending an email or notification
+      invoice.Raise(new InvoiceSentEvent(invoice.Id, client.Email ?? "", invoice.ClientName, invoice.InvoiceNumber));
+    }
+    await _unitOfWork.SaveChangesAsync(cancellationToken);
   }
 }
