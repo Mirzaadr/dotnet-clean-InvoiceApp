@@ -38,9 +38,9 @@ public static class DependencyInjection
         services.AddSingleton<IInvoiceNumberGenerator, InvoiceNumberGenerator>();
         services.AddSingleton<IDateTimeProvider, DateTimeProvider>();
 
-        services.AddSingleton<IPdfService, PdfService>();
-        services.AddSingleton<IEmailService, EmailService>();
-        services.AddSingleton<IStorageService, StorageService>();
+        services.AddScoped<IPdfService, PdfService>();
+        services.AddScoped<IEmailService, EmailService>();
+        services.AddScoped<IStorageService, StorageService>();
         services.AddTransient<IDomainEventsDispatcher, DomainEventsDispatcher>();
 
         // services.AddSingleton(typeof(IConverter), new SynchronizedConverter(new PdfTools()));
