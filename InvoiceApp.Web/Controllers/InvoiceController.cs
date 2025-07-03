@@ -46,6 +46,25 @@ public class InvoiceController : Controller
     return View(result);
   }
 
+
+  public async Task<IActionResult> Draft(int page = 1, int pageSize = 10, string search = "")
+  {
+    // var command = _mapper.Map<CreateMenuCommand>((request, hostId));
+    var query = new GetInvoicesQuery(page, pageSize, search + ",Draft");
+    var result = await _mediator.Send(query);
+    ViewBag.SearchTerm = search;
+    return View(result);
+  }
+
+  public async Task<IActionResult> Sent(int page = 1, int pageSize = 10, string search = "")
+  {
+    // var command = _mapper.Map<CreateMenuCommand>((request, hostId));
+    var query = new GetInvoicesQuery(page, pageSize, search + ",Sent");
+    var result = await _mediator.Send(query);
+    ViewBag.SearchTerm = search;
+    return View(result);
+  }
+
   public async Task<IActionResult> Create()
   {
     var newInvoiceNumber = await _invoiceNumberGenerator.GenerateAsync();
