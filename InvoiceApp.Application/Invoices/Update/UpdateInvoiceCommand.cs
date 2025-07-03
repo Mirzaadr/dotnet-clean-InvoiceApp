@@ -9,5 +9,6 @@ public record UpdateInvoiceCommand(
   Guid InvoiceId,
   DateTime IssueDate,
   DateTime DueDate,
-  List<InvoiceItemDto> Items
+  List<InvoiceItemDto> Items,
+  bool IsSend = false
 ) : IRequest;

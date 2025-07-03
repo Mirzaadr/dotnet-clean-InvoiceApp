@@ -9,6 +9,8 @@ using InvoiceApp.Application.Commons.Interface;
 using Microsoft.EntityFrameworkCore;
 using InvoiceApp.Infrastructure.Persistence.Repositories.InMemory;
 using InvoiceApp.Infrastructure.Persistence.Repositories.Db;
+using InvoiceApp.Infrastructure.DomainEvents;
+using QuestPDF.Infrastructure;
 
 namespace InvoiceApp.Infrastructure;
 
@@ -21,6 +23,7 @@ public static class DependencyInjection
         // services.AddInMemoryDatabase();
         services.AddDatabase(configuration);
 
+        QuestPDF.Settings.License = LicenseType.Community; 
         services.AddServices();
 
 
@@ -34,6 +37,13 @@ public static class DependencyInjection
         // Services
         services.AddSingleton<IInvoiceNumberGenerator, InvoiceNumberGenerator>();
         services.AddSingleton<IDateTimeProvider, DateTimeProvider>();
+
+        services.AddSingleton<IPdfService, PdfService>();
+        services.AddSingleton<IEmailService, EmailService>();
+        services.AddSingleton<IStorageService, StorageService>();
+        services.AddTransient<IDomainEventsDispatcher, DomainEventsDispatcher>();
+
+        // services.AddSingleton(typeof(IConverter), new SynchronizedConverter(new PdfTools()));
 
         services.AddMemoryCache();
         services.AddScoped<ICacheService, MemoryCacheService>();
@@ -68,7 +78,7 @@ public static class DependencyInjection
             sp.GetRequiredService<InMemoryDbContext>());
 
         // repository
-        services.AddScoped<IInvoiceRepository, InvoiceInMemoryRepository>();
+        services.AddTransient<IInvoiceRepository, InvoiceInMemoryRepository>();
         services.AddScoped<IClientRepository, ClientInMemoryRepository>();
         services.AddScoped<IProductRepository, ProductInMemoryRepository>();
         return services;

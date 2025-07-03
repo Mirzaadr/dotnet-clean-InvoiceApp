@@ -10,6 +10,8 @@ using InvoiceApp.Application.Invoices.Update;
 using InvoiceApp.Web.Services;
 using InvoiceApp.Application.Commons.Interface;
 using InvoiceApp.Domain.Invoices;
+using InvoiceApp.Application.Invoices.Send;
+using InvoiceApp.Application.Invoices.MarkAsPaid;
 
 namespace InvoiceApp.Web.Controllers;
 
@@ -65,7 +67,10 @@ public class InvoiceController : Controller
 
   [HttpPost]
   [ValidateAntiForgeryToken]
-  public async Task<IActionResult> Create([Bind(Prefix = "Invoice")] InvoiceDTO invoice)
+  public async Task<IActionResult> Create(
+    string Command,
+    [Bind(Prefix = "Invoice")] InvoiceDTO invoice
+  )
   {
     ValidateItems(invoice);
 
@@ -87,7 +92,8 @@ public class InvoiceController : Controller
             item.Quantity,
             item.UnitPrice
           )
-      )
+      ),
+      Command == "send"
     );
     await _mediator.Send(command);
     // return RedirectToAction(nameof(Details), new { id = newId });
@@ -112,7 +118,11 @@ public class InvoiceController : Controller
 
   [HttpPost]
   [ValidateAntiForgeryToken]
-  public async Task<IActionResult> Edit(Guid id, [Bind(Prefix = "Invoice")] InvoiceDTO invoice)
+  public async Task<IActionResult> Edit(
+    Guid id,
+    string Command,
+    [Bind(Prefix = "Invoice")] InvoiceDTO invoice
+    )
   {
       if (id != invoice.Id)
           return BadRequest();
@@ -131,11 +141,27 @@ public class InvoiceController : Controller
           var formData = await _formFactory.CreateAsync(invoice);
           return View("Edit", formData);
       }
-
-      var command = new UpdateInvoiceCommand(invoice.Id, invoice.IssueDate, invoice.DueDate, invoice.Items);
-
+  
+      var command = new UpdateInvoiceCommand(invoice.Id, invoice.IssueDate, invoice.DueDate, invoice.Items, Command == "send");
       await _mediator.Send(command);
+
       return RedirectToAction(nameof(Index));
+  }
+
+  [HttpPost]
+  [ValidateAntiForgeryToken]
+  public async Task<IActionResult> SendInvoice(Guid id)
+  {
+    await _mediator.Send(new SendInvoiceCommand(id));
+    return RedirectToAction(nameof(Index));
+  }
+
+  [HttpPost]
+  [ValidateAntiForgeryToken]
+  public async Task<IActionResult> ConfirmPayment(Guid id)
+  {
+    await _mediator.Send(new MarkAsPaidInvoiceCommand(id));
+    return RedirectToAction(nameof(Index));
   }
 
   public async Task<IActionResult> Delete(Guid id)
@@ -151,6 +177,27 @@ public class InvoiceController : Controller
   {
     await _mediator.Send(new DeleteInvoiceCommand(id));
     return RedirectToAction(nameof(Index));
+  }
+  
+  // [HttpGet("Download")]
+  public async Task<IActionResult> Download(Guid id)
+  {
+    var invoice = await _mediator.Send(new GetInvoiceByIdQuery(id));
+    if (invoice == null || invoice.Status == InvoiceStatus.Draft.ToString())
+    {
+      return NotFound();
+    }
+
+    var storageService = HttpContext.RequestServices.GetRequiredService<IStorageService>();
+    var pdfBytes = await storageService.GetFileAsync($"{invoice.Id}.pdf");
+    if (pdfBytes == null)
+    {
+      var pdfService = HttpContext.RequestServices.GetRequiredService<IPdfService>();
+      pdfBytes = pdfService.GenerateInvoicePdf(invoice);
+      await storageService.SaveFileAsync(invoice.Id.ToString(), pdfBytes);
+    }
+    
+    return File(pdfBytes, "application/pdf", $"Invoice_{invoice.InvoiceNumber}.pdf");
   }
 
   private void ValidateItems(InvoiceDTO invoice)

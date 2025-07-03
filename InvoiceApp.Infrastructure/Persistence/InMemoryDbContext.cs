@@ -1,20 +1,24 @@
 using InvoiceApp.Domain.Invoices;
 using InvoiceApp.Domain.Clients;
 using InvoiceApp.Domain.Products;
+using InvoiceApp.Infrastructure.DomainEvents;
+using InvoiceApp.Domain.Commons.Interfaces;
 
 namespace InvoiceApp.Infrastructure.Persistence;
 
 public class InMemoryDbContext : IUnitOfWork
 {
+    private readonly IDomainEventsDispatcher _dispatcher;
     public List<Invoice> Invoices { get; set; } 
     public List<Product> Products { get; set; } 
     public List<Client> Clients { get; set; }
 
-    public InMemoryDbContext()
+    public InMemoryDbContext(IDomainEventsDispatcher dispatcher)
     {
         Invoices = new List<Invoice>();
         Products = new List<Product>();
         Clients = new List<Client>();
+        _dispatcher = dispatcher;
     }
 
     public void Add<TEntity>(TEntity entity) where TEntity : class
@@ -33,13 +37,32 @@ public class InMemoryDbContext : IUnitOfWork
         }
     }
 
-    public Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+    public async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
     {
-        return Task.FromResult(0);
+        await PublishDomainEventsAsync();
+
+        return await Task.FromResult(1); // pretend a change occurred
     }
 
     public int SaveChanges()
     {
         return 0;
+    }
+
+    private async Task PublishDomainEventsAsync()
+    {
+        var allEntities = new List<Invoice>();
+        allEntities.AddRange(Invoices);
+
+        var domainEvents = allEntities
+            .SelectMany(e =>
+            {
+                List<IDomainEvent> domainEvents = e.DomainEvents.ToList();
+                e.ClearDomainEvents();
+
+                return domainEvents;
+            });
+
+        await _dispatcher.DispatchAsync(domainEvents);
     }
 }
