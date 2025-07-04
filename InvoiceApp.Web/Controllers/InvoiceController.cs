@@ -12,9 +12,11 @@ using InvoiceApp.Application.Commons.Interface;
 using InvoiceApp.Domain.Invoices;
 using InvoiceApp.Application.Invoices.Send;
 using InvoiceApp.Application.Invoices.MarkAsPaid;
+using Microsoft.AspNetCore.Authorization;
 
 namespace InvoiceApp.Web.Controllers;
 
+[Authorize]
 public class InvoiceController : Controller
 {
   private readonly ILogger<HomeController> _logger;
