@@ -2,6 +2,9 @@ using InvoiceApp.Domain.Clients;
 using InvoiceApp.Domain.Invoices;
 using Bogus;
 using InvoiceApp.Domain.Products;
+using InvoiceApp.Domain.Users;
+using InvoiceApp.Application.Commons.Interface;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace InvoiceApp.Infrastructure.Persistence;
 
@@ -22,8 +25,11 @@ public static class SeedData
         return InvoiceStatus.From(status);
     }
 
-    public static void Seed(InMemoryDbContext context)
+    public static void Seed(IServiceProvider serviceProvider)
     {
+        var context = serviceProvider.GetRequiredService<InMemoryDbContext>();
+        var hasher = serviceProvider.GetRequiredService<IPasswordHasher>();
+
         int clientCount = 50;
         int productCount = 300;
         int invoiceCount = 100;
@@ -85,5 +91,11 @@ public static class SeedData
 
             context.Invoices.Add(invoice);
         }
+
+        // IPasswordHasher hasher = new PasswordHasher();
+
+        context.Users.Add(User.Create(
+            "admin",
+            hasher.Hash("password123")));
     }
 }
