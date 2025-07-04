@@ -5,6 +5,7 @@ using InvoiceApp.Domain.Products;
 using InvoiceApp.Infrastructure.DomainEvents;
 using InvoiceApp.Domain.Commons.Models;
 using InvoiceApp.Domain.Commons.Interfaces;
+using InvoiceApp.Domain.Users;
 
 namespace InvoiceApp.Infrastructure.Persistence;
 
@@ -19,6 +20,7 @@ public class AppDbContext : DbContext, IUnitOfWork
     public DbSet<Invoice> Invoices { get; set; }
     public DbSet<Client> Clients { get; set; }
     public DbSet<Product> Products { get; set; }
+    public DbSet<User> Users { get; set; }
   
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {

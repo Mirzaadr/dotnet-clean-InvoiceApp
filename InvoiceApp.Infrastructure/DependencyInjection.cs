@@ -85,7 +85,7 @@ public static class DependencyInjection
         services.AddScoped<IInvoiceRepository, InvoiceDbRepository>();
         services.AddScoped<IClientRepository, ClientDbRepository>();
         services.AddScoped<IProductRepository, ProductDbRepository>();
-        // services.AddScoped<IUserRepository, UserDbRepository>();
+        services.AddScoped<IUserRepository, UserDbRepository>();
 
         return services;
     }
@@ -102,6 +102,7 @@ public static class DependencyInjection
         services.AddTransient<IInvoiceRepository, InvoiceInMemoryRepository>();
         services.AddScoped<IClientRepository, ClientInMemoryRepository>();
         services.AddScoped<IProductRepository, ProductInMemoryRepository>();
+        services.AddScoped<IUserRepository, UserInMemoryRepository>();
         return services;
     }
 }

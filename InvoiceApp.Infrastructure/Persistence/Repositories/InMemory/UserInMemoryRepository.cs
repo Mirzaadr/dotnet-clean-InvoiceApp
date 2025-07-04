@@ -1,17 +1,12 @@
-using InvoiceApp.Domain.Commons.Models;
-using InvoiceApp.Domain.Invoices;
 using InvoiceApp.Domain.Users;
-using Microsoft.EntityFrameworkCore;
-using System.Linq;
-using System.Linq.Expressions;
 
-namespace InvoiceApp.Infrastructure.Persistence.Repositories;
+namespace InvoiceApp.Infrastructure.Persistence.Repositories.InMemory;
 
-public class UserRepository : IUserRepository
+public class UserInMemoryRepository : IUserRepository
 {
     private readonly InMemoryDbContext _context;
 
-    public UserRepository(InMemoryDbContext context)
+    public UserInMemoryRepository(InMemoryDbContext context)
     {
         _context = context;
     }

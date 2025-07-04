@@ -99,8 +99,11 @@ public static class SeedData
             hasher.Hash("password123")));
     }
 
-    public static void Seed(AppDbContext context)
+    public static void SeedDb(IServiceProvider serviceProvider)
     {
+        var context = serviceProvider.GetRequiredService<AppDbContext>();
+        var hasher = serviceProvider.GetRequiredService<IPasswordHasher>();
+        
         int clientCount = 50;
         int productCount = 300;
         int invoiceCount = 100;
@@ -121,10 +124,6 @@ public static class SeedData
             clients = clientFaker.Generate(clientCount);
             context.Clients.AddRange(clients);
         }
-        else
-        {
-            clients = context.Clients.ToList();
-        }
 
         if (!context.Products.Any())
         {
@@ -136,10 +135,6 @@ public static class SeedData
             ));
             products = productFaker.Generate(productCount);
             context.Products.AddRange(products);
-        }
-        else
-        {
-            products = context.Products.ToList();
         }
 
         if (!context.Invoices.Any())
@@ -180,6 +175,13 @@ public static class SeedData
 
                 context.Invoices.Add(invoice);
             }
+        }
+
+        if (!context.Users.Any())
+        {
+            context.Users.Add(User.Create(
+                "admin",
+                hasher.Hash("password123")));
         }
         context.SaveChanges();
     }
