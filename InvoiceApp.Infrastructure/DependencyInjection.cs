@@ -11,6 +11,7 @@ using InvoiceApp.Domain.Products;
 using InvoiceApp.Application.Commons.Interface;
 using InvoiceApp.Infrastructure.DomainEvents;
 using QuestPDF.Infrastructure;
+using InvoiceApp.Domain.Users;
 // using Microsoft.Extensions.Options;
 // using Microsoft.EntityFrameworkCore;
 
@@ -31,11 +32,21 @@ public static class DependencyInjection
         services.AddSingleton<InMemoryDbContext>();
         services.AddScoped<IUnitOfWork>(sp =>
             sp.GetRequiredService<InMemoryDbContext>());
+        
+        services.AddAuthentication("MyCookieAuth")
+            .AddCookie("MyCookieAuth", options =>
+            {
+                options.Cookie.Name = "MyAuthCookie";
+                options.LoginPath = "/Auth/Login";
+                options.LogoutPath = "/Auth/Logout";
+                options.AccessDeniedPath = "/Auth/Denied";
+            });
 
         // repository
         services.AddTransient<IInvoiceRepository, InvoiceRepository>();
         services.AddScoped<IClientRepository, ClientRepository>();
         services.AddScoped<IProductRepository, ProductRepository>();
+        services.AddScoped<IUserRepository, UserRepository>();
 
         // Services
         services.AddSingleton<IInvoiceNumberGenerator, InvoiceNumberGenerator>();
@@ -44,6 +55,7 @@ public static class DependencyInjection
         services.AddSingleton<IPdfService, PdfService>();
         services.AddSingleton<IEmailService, EmailService>();
         services.AddSingleton<IStorageService, StorageService>();
+        services.AddScoped<IPasswordHasher, PasswordHasher>();
 
         // services.AddSingleton(typeof(IConverter), new SynchronizedConverter(new PdfTools()));
 
