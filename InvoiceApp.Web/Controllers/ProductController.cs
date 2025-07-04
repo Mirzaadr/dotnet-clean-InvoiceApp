@@ -6,9 +6,11 @@ using InvoiceApp.Application.DTOs;
 using InvoiceApp.Application.Products.Create;
 using InvoiceApp.Application.Products.Delete;
 using InvoiceApp.Application.Products.Update;
+using Microsoft.AspNetCore.Authorization;
 
 namespace InvoiceApp.Web.Controllers;
 
+[Authorize]
 public class ProductsController : Controller
 {
     private readonly ILogger<ProductsController> _logger;

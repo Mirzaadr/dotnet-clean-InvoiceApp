@@ -8,9 +8,11 @@ using InvoiceApp.Application.DTOs;
 using InvoiceApp.Application.Clients.Create;
 using InvoiceApp.Application.Clients.Delete;
 using InvoiceApp.Application.Clients.Update;
+using Microsoft.AspNetCore.Authorization;
 
 namespace InvoiceApp.Web.Controllers;
 
+[Authorize]
 public class ClientsController : Controller
 {
     private readonly ILogger<ClientsController> _logger;
